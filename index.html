@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบบันทึกการสับเปลี่ยนมิเตอร์ PEA</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font Prompt & Sarabun for Print -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .pea-purple {
+            background-color: #8e44ad;
+        }
+        .pea-purple-hover {
+            background-color: #7d3c98;
+        }
+        .pea-text-purple {
+            color: #8e44ad;
+        }
+        .border-pea {
+            border-color: #8e44ad;
+        }
+
+        /* สำหรับหน้าจอป้อนข้อมูลตอนสั่งพิมพ์ */
+        @media print {
+            body {
+                background-color: #ffffff;
+                font-family: 'Sarabun', sans-serif;
+            }
+            header, main, footer, .no-print, #toast {
+                display: none !important;
+            }
+            #print-document {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Header -->
+    <header class="pea-purple text-white shadow-lg py-4 px-6 sticky top-0 z-40 no-print">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-1.5 rounded-full text-purple-700 w-10 h-10 flex items-center justify-center font-bold text-lg shadow">
+                    PEA
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold tracking-wide">ระบบบันทึกการสับเปลี่ยนมิเตอร์</h1>
+                </div>
+            </div>
+            <div class="hidden md:flex text-right text-xs text-purple-100 flex-col">
+                <span id="current-date-header"></span>
+                <span id="current-time-header"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tab Bar -->
+    <div class="max-w-4xl mx-auto px-4 mt-6 no-print">
+        <div class="flex space-x-2 bg-white p-1.5 rounded-xl shadow-sm border border-gray-100">
+            <button onclick="switchTab('input-tab')" id="btn-input-tab" class="flex-1 py-2.5 px-4 rounded-lg font-bold text-sm transition-all duration-200 bg-purple-600 text-white shadow-sm flex items-center justify-center space-x-2">
+                <i class="fas fa-edit"></i>
+                <span>บันทึกข้อมูล</span>
+            </button>
+            <button onclick="switchTab('search-tab')" id="btn-search-tab" class="flex-1 py-2.5 px-4 rounded-lg font-bold text-sm transition-all duration-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center space-x-2">
+                <i class="fas fa-search"></i>
+                <span>ค้นหาและพิมพ์รายงาน</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 mt-6 no-print">
+        
+        <!-- Tab 1: Form Input -->
+        <div id="input-tab-content">
+            <!-- Welcome Card -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm mb-6 border-l-4 border-purple-600">
+                <h2 class="text-xl font-bold text-gray-800 mb-1">บันทึกข้อมูลการสับเปลี่ยนมิเตอร์</h2>
+                <p class="text-xs text-gray-500">กรุณากรอกข้อมูลการสับเปลี่ยนมิเตอร์ของผู้ใช้ไฟฟ้าให้ครบถ้วนเพื่อจัดทำเอกสารรายงาน</p>
+            </div>
+
+            <!-- Form Start -->
+            <form id="meterForm" class="space-y-6">
+                
+                <!-- SECTION 1: PEA มิเตอร์ที่ตรวจสอบ -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                        <span class="pea-purple text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                        <h3 class="text-lg font-bold text-gray-800">PEA มิเตอร์ที่ตรวจสอบ</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขมิเตอร์<span class="text-red-500">*</span></label>
+                            <input type="text" name="meter_no" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุหมายเลขมิเตอร์">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ชนิดมิเตอร์ <span class="text-red-500">*</span></label>
+                            <select name="meter_type" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition">
+                                <option value="">-- เลือกชนิดมิเตอร์ --</option>
+                                <option value="ชนิดจานหมุน">ชนิดจานหมุน</option>
+                                <option value="ชนิดอิเล็กทรอนิกส์">ชนิดอิเล็กทรอนิกส์</option>
+                                <option value="TOU">TOU</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ขนาดมิเตอร์ <span class="text-red-500">*</span></label>
+                            <select name="meter_size" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition">
+                                <option value="">-- เลือกขนาดมิเตอร์ --</option>
+                                <option value="5(15) A 1P 2W">5(15) A 1P 2W</option>
+                                <option value="15(45) A 1P 2W">15(45) A 1P 2W</option>
+                                <option value="30(100) A 1P 2W">30(100) A 1P 2W</option>
+                                <option value="5(100) A 1P 2W">5(100) A 1P 2W</option>
+                                <option value="15(45) A 3P 4W">15(45) A 3P 4W</option>
+                                <option value="30(100) A 3P 4W">30(100) A 3P 4W</option>
+                                <option value="5(45) A 3P 4W">5(45) A 3P 4W</option>
+                                <option value="5(100) A 3P 4W">5(100) A 3P 4W</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขผู้ใช้ไฟฟ้า (CA) <span class="text-red-500">*</span></label>
+                            <input type="text" name="ca_no" required pattern="[0-9]{12}" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุหมายเลขผู้ใช้ไฟฟ้า 12 หลัก">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-สกุล ผู้ใช้ไฟฟ้า <span class="text-red-500">*</span></label>
+                            <input type="text" name="customer_name" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุชื่อ-นามสกุล">
+                        </div>
+                        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่ผู้ใช้ไฟฟ้า <span class="text-red-500">*</span></label>
+                                <textarea name="customer_address" required rows="2" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุที่อยู่สำหรับการติดตั้งมิเตอร์"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทร.ติดต่อ (ถ้ามี)</label>
+                                <input type="text" name="customer_phone" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุเบอร์โทรศัพท์ติดต่อ">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: ผลการตรวจสอบ -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                        <span class="pea-purple text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                        <h3 class="text-lg font-bold text-gray-800">ผลการตรวจสอบ</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">หน่วยขณะตรวจสอบ (kWh) <span class="text-red-500">*</span></label>
+                            <input type="number" step="any" name="check_unit" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="หน่วยอ่านได้ขณะตรวจสอบ">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">อื่นๆ (รายละเอียดการตรวจสอบเพิ่มเติม)</label>
+                            <input type="text" name="check_other_details" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุรายละเอียดผลการตรวจสอบทางกายภาพ/ภายนอก">
+                        </div>
+                        
+                        <div class="md:col-span-2 pt-2 border-t border-gray-50">
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">ผลการตรวจสภาพมิเตอร์ <span class="text-red-500">*</span></label>
+                            <div class="flex items-center space-x-6 mt-2">
+                                <label class="flex items-center space-x-2.5 cursor-pointer">
+                                    <input type="radio" name="meter_status" value="ปกติ" checked class="w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300">
+                                    <span class="text-sm text-gray-800 font-medium">
+                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-600 mr-1 text-xs"><i class="fas fa-check"></i></span> ปกติ
+                                    </span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 cursor-pointer">
+                                    <input type="radio" name="meter_status" value="ชำรุด" class="w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300">
+                                    <span class="text-sm text-gray-800 font-medium">
+                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-100 text-red-600 mr-1 text-xs"><i class="fas fa-times"></i></span> ชำรุด
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: สาเหตุการชำรุดของมิเตอร์ -->
+                <div id="damage-section" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 transition-all duration-300">
+                    <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                        <span class="pea-purple text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                        <h3 class="text-lg font-bold text-gray-800">สาเหตุการชำรุดของมิเตอร์</h3>
+                    </div>
+                    
+                    <p class="text-xs text-gray-500 mb-4"><i class="fas fa-info-circle mr-1 text-purple-500"></i> หากเลือกผลการตรวจสภาพเป็น "ชำรุด" กรุณาเลือกสาเหตุด้านล่าง</p>
+
+                    <div class="space-y-6">
+                        <!-- 3.1 ชำรุดแบบไม่คิดเงิน -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-gray-200">
+                            <h4 class="text-sm font-bold text-gray-700 mb-3 flex items-center justify-between">
+                                <span>3.1 ชำรุดแบบไม่คิดเงิน (ความเสียหายจากธรรมชาติ)</span>
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="หมุนติดขัด" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">หมุนติดขัด</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="หมุนถอยหลัง" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">หมุนถอยหลัง</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="สิ่งแปลกปลอมเข้ามิเตอร์" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">สิ่งแปลกปลอมเข้ามิเตอร์</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="น้ำเข้า ในประกัน" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">น้ำเข้า ในประกัน</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="น้ำเข้า นอกประกัน" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">น้ำเข้า นอกประกัน</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="จอไม่แสดงค่า/ชำรุด" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">จอไม่แสดงค่า/ชำรุด</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="ค่า Error เกินพิกัด E-M" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="ค่า Error เกินพิกัด E-M">ค่า Error เกินพิกัด E-M</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="โปรแกรม/FW ผิดปกติ E-M" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="โปรแกรม/FW ผิดปกติ E-M">โปรแกรม/FW ผิดปกติ E-M</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="สื่อสาร/BLE เชื่อมไม่ได้ E-M" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="สื่อสาร/BLE เชื่อมไม่ได้ E-M">สื่อสาร/BLE เชื่อมไม่ได้ E-M</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="Battery/ขั้วต่อหลวมชำรุด E-M" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="Battery/ขั้วต่อหลวมชำรุด E-M">Battery/ขั้วต่อหลวมชำรุด E-M</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="จอไม่แสดงค่า/digitไม่ครบ E-M" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="จอไม่แสดงค่า/digitไม่ครบ E-M">จอไม่แสดงค่า/digitไม่ครบ E-M</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="น้ำเข้า ในประกัน E-M" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="น้ำเข้า ในประกัน E-M">น้ำเข้า ในประกัน E-M</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="น้ำเข้า นอกประกัน E-M" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="น้ำเข้า นอกประกัน E-M">น้ำเข้า นอกประกัน E-M</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="ที่ต่อสายไหม้ E-M" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="ที่ต่อสายไหม้ E-M">ที่ต่อสายไหม้ E-M</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="ระเบิด/ไหม้ E-M" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="ระเบิด/ไหม้ E-M">ระเบิด/ไหม้ E-M</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="เปลี่ยนเป็นมิเตอร์ E-Meter" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="เปลี่ยนเป็นมิเตอร์ E-Meter">เปลี่ยนเป็นมิเตอร์ E-Meter</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" id="other_free_radio" name="damage_cause" value="ชำรุดแบบไม่คิดเงินอื่นๆ" data-type="free" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">อื่นๆ (โปรดระบุ)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 3.2 ชำรุดแบบคิดเงิน -->
+                        <div class="bg-amber-50 p-4 rounded-xl border border-amber-200">
+                            <h4 class="text-sm font-bold text-amber-800 mb-3 flex items-center justify-between">
+                                <span>3.2 ชำรุดแบบคิดเงิน (ความเสียหายจากพฤติกรรม/อุบัติเหตุผู้ใช้ไฟฟ้า)</span>
+                                <span class="bg-amber-200 text-amber-800 text-[10px] px-2 py-0.5 rounded font-bold">เรียกเก็บเงิน</span>
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="ซีซีไหม้" data-type="paid" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">ซีซีไหม้</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="ขดลวดกระแสชำรุด/ขาด" data-type="paid" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="ขดลวดกระแสชำรุด/ขาด">ขดลวดกระแสชำรุด/ขาด</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="ขดลวดแรงดันชำรุด/ขาด" data-type="paid" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="ขดลวดแรงดันชำรุด/ขาด">ขดลวดแรงดันชำรุด/ขาด</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="ฝาครอบตัวมิเตอร์แตก/ร้าว" data-type="paid" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate" title="ฝาครอบตัวมิเตอร์แตก/ร้าว">ฝาครอบตัวมิเตอร์แตก/ร้าว</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" name="damage_cause" value="ที่ต่อสายไหม้" data-type="paid" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">ที่ต่อสายไหม้</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
+                                    <input type="radio" id="other_paid_radio" name="damage_cause" value="ชำรุดแบบคิดเงินอื่นๆ" data-type="paid" class="w-4 h-4 text-purple-600">
+                                    <span class="truncate">อื่นๆ (โปรดระบุ)</span>
+                                </label>
+                            </div>
+
+                            <!-- ส่วนระบุจำนวนเงิน (เลขอารบิก และคำนวณตัวเขียนภาษาไทย) -->
+                            <div id="charge-amount-container" class="mt-4 pt-4 border-t border-amber-200 grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                                <div>
+                                    <label class="block text-xs font-bold text-amber-950 mb-1">จำนวนเงินค่าเสียหาย (บาท) [เลขอารบิก] <span class="text-red-500">*</span></label>
+                                    <div class="relative rounded-lg shadow-sm">
+                                        <input type="number" step="any" min="0" id="charge_amount_num" name="charge_amount_num" class="w-full pl-4 pr-12 py-2.5 rounded-lg border border-amber-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none bg-white text-sm text-gray-800 font-semibold" placeholder="เช่น 1250.00">
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-400 text-xs font-bold">บาท</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-amber-950 mb-1">จำนวนเงินตัวหนังสือ (ระบบคำนวณอัตโนมัติ)</label>
+                                    <input type="text" id="charge_amount_thai" name="charge_amount_thai" readonly class="w-full px-4 py-2.5 rounded-lg border border-amber-200 bg-amber-100/70 text-amber-900 font-semibold text-xs h-[42px] cursor-not-allowed outline-none truncate" placeholder="ศูนย์บาทถ้วน">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3.3 แจ้ง พบช.เฉลี่ยปรับปรุงหน่วย -->
+                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
+                            <h4 class="text-sm font-bold text-purple-900 mb-3 flex items-center justify-between">
+                                <span>3.3 แจ้ง พบช.เฉลี่ยปรับปรุงหน่วย</span>
+                                <span class="bg-purple-200 text-purple-800 text-[10px] px-2 py-0.5 rounded font-bold">แผนกวิเคราะห์และประเมินผล</span>
+                            </h4>
+                            <label class="flex items-start space-x-3 cursor-pointer p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+                                <input type="checkbox" name="request_average_unit" value="ใช่" class="mt-1 w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                <div class="text-sm">
+                                    <p class="font-semibold text-gray-800">ส่งแจ้งดำเนินการเฉลี่ยปรับปรุงหน่วย</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">ติ๊กเลือกเมื่อต้องการส่งข้อมูลสับเปลี่ยนมิเตอร์นี้ ให้ฝ่ายที่เกี่ยวข้องจัดทำ พบช. เพื่อประเมินเฉลี่ยปรับปรุงหน่วยค่าไฟต่อไป</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- ระบุสาเหตุเพิ่มเติม -->
+                        <div id="other-cause-container" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">โปรดระบุสาเหตุที่พบเพิ่มเติม <span class="text-red-500">*</span></label>
+                            <input type="text" id="other_cause_text" name="other_cause_text" class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="อธิบายสภาพการชำรุดที่พบ">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: รูปภาพถ่ายมิเตอร์ -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                        <span class="pea-purple text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                        <h3 class="text-lg font-bold text-gray-800">รูปภาพถ่ายมิเตอร์ (ประมาณ 2 รูป)</h3>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-4"><i class="fas fa-camera mr-1 text-purple-500"></i> แนะนำ: ถ่ายภาพหน้าปัดมิเตอร์ให้เห็นหน่วยชัดเจน 1 รูป และภาพสภาพตู้/ขั้วต่อ/สายแรงต่ำ 1 รูป</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Photo 1 -->
+                        <div class="border-2 border-dashed border-gray-200 hover:border-purple-300 rounded-2xl p-4 transition text-center relative flex flex-col justify-between min-h-[220px] bg-slate-50">
+                            <input type="file" id="photo_1" accept="image/*" class="hidden" onchange="previewImage(this, 'preview_img_1', 'upload_placeholder_1', 'btn_remove_1')">
+                            
+                            <div id="upload_placeholder_1" class="my-auto py-4 cursor-pointer" onclick="document.getElementById('photo_1').click()">
+                                <div class="text-purple-400 text-4xl mb-3"><i class="fas fa-camera"></i></div>
+                                <p class="text-sm font-semibold text-gray-700">รูปที่ 1</p>
+                                <p class="text-xs text-gray-400 mt-1">กดเพื่อถ่ายภาพหรือเลือกไฟล์รูป</p>
+                            </div>
+                            
+                            <div class="relative w-full h-40 hidden mx-auto" id="preview_img_1_container">
+                                <img id="preview_img_1" class="w-full h-full object-cover rounded-xl shadow-sm border border-gray-200" src="">
+                            </div>
+
+                            <div class="mt-2 flex items-center justify-center space-x-2">
+                                <button type="button" onclick="document.getElementById('photo_1').click()" class="text-xs bg-white text-purple-600 border border-purple-200 px-3 py-1.5 rounded-lg hover:bg-purple-50 font-medium transition">
+                                    <i class="fas fa-sync-alt mr-1"></i> เปลี่ยนรูป
+                                </button>
+                                <button type="button" id="btn_remove_1" onclick="removeImage('photo_1', 'preview_img_1', 'upload_placeholder_1', 'btn_remove_1')" class="hidden text-xs bg-red-50 text-red-500 border border-red-100 px-3 py-1.5 rounded-lg hover:bg-red-100 font-medium transition">
+                                    <i class="fas fa-trash-alt mr-1"></i> ลบออก
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Photo 2 -->
+                        <div class="border-2 border-dashed border-gray-200 hover:border-purple-300 rounded-2xl p-4 transition text-center relative flex flex-col justify-between min-h-[220px] bg-slate-50">
+                            <input type="file" id="photo_2" accept="image/*" class="hidden" onchange="previewImage(this, 'preview_img_2', 'upload_placeholder_2', 'btn_remove_2')">
+                            
+                            <div id="upload_placeholder_2" class="my-auto py-4 cursor-pointer" onclick="document.getElementById('photo_2').click()">
+                                <div class="text-purple-400 text-4xl mb-3"><i class="fas fa-camera"></i></div>
+                                <p class="text-sm font-semibold text-gray-700">รูปที่ 2</p>
+                                <p class="text-xs text-gray-400 mt-1">กดเพื่อถ่ายภาพหรือเลือกไฟล์รูป</p>
+                            </div>
+                            
+                            <div class="relative w-full h-40 hidden mx-auto" id="preview_img_2_container">
+                                <img id="preview_img_2" class="w-full h-full object-cover rounded-xl shadow-sm border border-gray-200" src="">
+                            </div>
+
+                            <div class="mt-2 flex items-center justify-center space-x-2">
+                                <button type="button" onclick="document.getElementById('photo_2').click()" class="text-xs bg-white text-purple-600 border border-purple-200 px-3 py-1.5 rounded-lg hover:bg-purple-50 font-medium transition">
+                                    <i class="fas fa-sync-alt mr-1"></i> เปลี่ยนรูป
+                                </button>
+                                <button type="button" id="btn_remove_2" onclick="removeImage('photo_2', 'preview_img_2', 'upload_placeholder_2', 'btn_remove_2')" class="hidden text-xs bg-red-50 text-red-500 border border-red-100 px-3 py-1.5 rounded-lg hover:bg-red-100 font-medium transition">
+                                    <i class="fas fa-trash-alt mr-1"></i> ลบออก
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 5-6: รายละเอียดมิเตอร์ถอนคืนและติดตั้งคืน -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 5. PEA มิเตอร์ถอนคืน -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                            <span class="pea-purple text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">5</span>
+                            <h3 class="text-lg font-bold text-gray-800">PEA มิเตอร์ถอนคืน</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขมิเตอร์ถอนคืน <span class="text-red-500">*</span></label>
+                                <input type="text" name="uninstall_meter_no" id="uninstall_meter_no" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุหมายเลขมิเตอร์ถอนคืน">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">หน่วยถอนคืน (kWh) <span class="text-red-500">*</span></label>
+                                <input type="number" step="any" name="uninstall_unit" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุหน่วยสุดท้าย">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. PEA มิเตอร์ติดตั้งคืน -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                        <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                            <span class="pea-purple text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">6</span>
+                            <h3 class="text-lg font-bold text-gray-800">PEA มิเตอร์ติดตั้งคืน</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">หมายเลขมิเตอร์ที่มาแทน <span class="text-red-500">*</span></label>
+                                <input type="text" name="install_meter_no" id="install_meter_no" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุหมายเลขมิเตอร์ใหม่">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">หน่วยเริ่มต้นติดตั้ง (kWh) <span class="text-red-500">*</span></label>
+                                <input type="number" step="any" name="install_unit" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" value="0" placeholder="ปกติระบุ 0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 7: ชื่อผู้ตรวจสอบ และการตรวจสอบบันทึก -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center space-x-2 border-b border-gray-100 pb-3 mb-4">
+                        <span class="pea-purple text-white w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">7</span>
+                        <h3 class="text-lg font-bold text-gray-800">ผู้ตรวจสอบและยืนยันข้อมูล</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ตรวจสอบ <span class="text-red-500">*</span></label>
+                            <input type="text" name="inspector_name" required class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition" placeholder="ระบุชื่อ-นามสกุล และรหัสพนักงาน">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">วันเวลาทำรายการ (อัตโนมัติ)</label>
+                            <input type="text" id="timestamp_display" readonly class="w-full px-4 py-2.5 rounded-lg border border-gray-100 bg-gray-50 text-gray-500 font-semibold cursor-not-allowed outline-none">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="text-xs text-gray-500">
+                            <p class="font-medium">คำชี้แจงก่อนบันทึก:</p>
+                            <ul class="list-disc pl-4 mt-1 space-y-1">
+                                <li>กรุณาตรวจสอบความถูกต้องของข้อมูลมิเตอร์ถอนคืนและติดตั้งก่อนกดบันทึก</li>
+                                <li>ระบบจะดำเนินการบันทึกข้อมูลเข้า Google Sheets และอัปโหลดภาพแยกตามโฟลเดอร์เดือน/ปี อัตโนมัติ</li>
+                            </ul>
+                        </div>
+                        <button type="submit" id="submitBtn" class="pea-purple hover:pea-purple-hover text-white font-bold py-3.5 px-8 rounded-xl shadow-md flex items-center justify-center space-x-2 transition focus:outline-none focus:ring-2 focus:ring-purple-300 w-full md:w-auto">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>บันทึกข้อมูลเข้าระบบ</span>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Tab 2: Search & Print -->
+        <div id="search-tab-content" class="hidden">
+            <div class="bg-white rounded-2xl p-6 shadow-sm mb-6 border-l-4 border-purple-600">
+                <h2 class="text-xl font-bold text-gray-800 mb-1">ค้นหาและพิมพ์รายงานบันทึกมิเตอร์</h2>
+                <p class="text-xs text-gray-500">พิมพ์เอกสารทางการและบันทึกรายงานเป็น PDF จากรายการข้อมูลประวัติของเซิร์ฟเวอร์</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+                <div class="flex flex-col md:flex-row gap-3">
+                    <div class="flex-1 relative">
+                        <i class="fas fa-search absolute left-3.5 top-3.5 text-gray-400"></i>
+                        <input type="text" id="search-input" oninput="filterRecords()" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none text-sm transition" placeholder="ค้นหาด้วย ชื่อผู้ใช้ไฟ, CA 12 หลัก, หรือหมายเลขมิเตอร์">
+                    </div>
+                    <button onclick="loadSheetRecords()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center space-x-2 transition">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>รีเฟรชข้อมูล</span>
+                    </button>
+                </div>
+
+                <!-- Records List Table -->
+                <div class="overflow-x-auto rounded-xl border border-gray-100">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm text-left">
+                        <thead class="bg-slate-50 text-gray-600 font-bold">
+                            <tr>
+                                <th class="px-4 py-3">วันเวลาบันทึก</th>
+                                <th class="px-4 py-3">หมายเลข CA</th>
+                                <th class="px-4 py-3">ชื่อผู้ใช้ไฟฟ้า</th>
+                                <th class="px-4 py-3">ถอนคืน / ติดตั้ง</th>
+                                <th class="px-4 py-3">ผลการตรวจ</th>
+                                <th class="px-4 py-3 text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="records-table-body" class="divide-y divide-gray-100 text-gray-700">
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-gray-400">
+                                    <i class="fas fa-circle-notch animate-spin mr-2"></i> กำลังโหลดข้อมูลประวัติ...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm w-full mx-4">
+            <div class="relative w-20 h-20 flex items-center justify-center">
+                <div class="absolute border-4 border-solid border-purple-200 rounded-full w-16 h-16"></div>
+                <div class="absolute border-4 border-solid border-purple-600 rounded-full w-16 h-16 border-t-transparent animate-spin"></div>
+                <span class="text-purple-600 font-bold text-xs">PEA</span>
+            </div>
+            <h4 class="text-lg font-bold text-gray-800 mt-4">กำลังดำเนินการ...</h4>
+            <p id="loading-text" class="text-xs text-gray-500 mt-1.5 text-center">กำลังประมวลผลข้อมูล อัปโหลดรูปภาพลงโฟลเดอร์ Google Drive และอัปเดต Google Sheet</p>
+            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-4">
+                <div id="loading-bar" class="pea-purple h-1.5 rounded-full transition-all duration-300" style="width: 10%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Box -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-white shadow-xl rounded-xl border border-gray-100 p-4 flex items-center space-x-3 max-w-sm">
+        <span id="toast-icon" class="text-xl"></span>
+        <span id="toast-message" class="text-sm font-medium text-gray-700"></span>
+    </div>
+
+    <!-- Printable Official Docx Replica Container (HIDDEN IN SCREEN, SHOWN ONLY ON PRINT) -->
+    <div id="print-document" class="hidden p-10 bg-white text-black mx-auto" style="width: 210mm; min-height: 297mm; font-family: 'Sarabun', 'Prompt', sans-serif; font-size: 14px; line-height: 1.6;">
+        <!-- PEA Logo Header -->
+        <div class="flex flex-col items-center mb-6 text-center">
+            <!-- SVG PEA Emblem -->
+            <svg width="80" height="80" viewBox="0 0 100 100" class="mb-2">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
+                <circle cx="50" cy="50" r="41" fill="none" stroke="black" stroke-width="1" stroke-dasharray="2,2"/>
+                <path d="M50 15 C30 15, 15 30, 15 50 C15 70, 30 85, 50 85 C70 85, 85 70, 85 50 C85 30, 70 15, 50 15 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                <path d="M30 50 L40 35 L50 45 L70 25" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="50" y="78" font-size="10" font-weight="bold" text-anchor="middle" font-family="Sarabun">การไฟฟ้าส่วนภูมิภาค</text>
+            </svg>
+            <h1 class="text-xl font-bold">บันทึกข้อความ</h1>
+            <p class="text-sm font-bold">การไฟฟ้าส่วนภูมิภาค (PEA)</p>
+        </div>
+
+        <!-- Meta Data Table info -->
+        <div class="grid grid-cols-2 gap-y-2 border-b border-black pb-4 mb-4 text-sm">
+            <div><strong>จาก:</strong> <span class="border-b border-dotted border-black px-1">พชง.กฟส.บัวเชด</span></div>
+            <div><strong>ถึง:</strong> <span class="border-b border-dotted border-black px-1">ผจก.กฟส.บัวเชด</span></div>
+            <div><strong>เลขที่:</strong> <span id="print_doc_no" class="border-b border-dotted border-black px-1">........................................</span></div>
+            <div><strong>วันที่:</strong> <span id="print_doc_date" class="border-b border-dotted border-black px-1">........................................</span></div>
+            <div class="col-span-2"><strong>เรื่อง:</strong> <span class="border-b border-dotted border-black px-1 font-bold text-base">รายงานการสับเปลี่ยนมิเตอร์ผู้ใช้ไฟฟ้า</span></div>
+        </div>
+
+        <!-- Section 1 Details -->
+        <div class="space-y-3 text-sm">
+            <p><strong>เรียน:</strong> ผจก.กฟส.บัวเชด</p>
+            <p class="pl-8 leading-relaxed">
+                ด้วย พชง.กฟส.บัวเชด ได้ดำเนินการตรวจสอบและจัดการสับเปลี่ยนมิเตอร์ของผู้ใช้ไฟฟ้า หมายเลข <span id="print_meter_no" class="font-bold border-b border-dotted border-black px-2"></span> 
+                ชนิด <span id="print_meter_type" class="font-bold border-b border-dotted border-black px-2"></span>
+                ขนาด <span id="print_meter_size" class="font-bold border-b border-dotted border-black px-2"></span> 
+                ชื่อผู้ใช้ไฟ <span id="print_customer_name" class="font-bold border-b border-dotted border-black px-2"></span> 
+                หมายเลข CA <span id="print_ca_no" class="font-bold border-b border-dotted border-black px-2"></span>
+            </p>
+            <p class="pl-8 leading-relaxed">
+                สถานที่ติดตั้ง/ที่อยู่ <span id="print_customer_address" class="border-b border-dotted border-black px-2"></span>
+                เบอร์โทรศัพท์ติดต่อ <span id="print_customer_phone" class="border-b border-dotted border-black px-2"></span>
+            </p>
+            <p class="pl-8 leading-relaxed">
+                <strong>ผลการตรวจสอบสภาพทั่วไป:</strong> <span id="print_check_details" class="border-b border-dotted border-black px-2"></span>
+                หน่วยขณะถอนคืนอยู่ที่ <span id="print_check_unit" class="font-bold border-b border-dotted border-black px-2"></span> kWh
+                สถานะการตรวจสภาพพบว่า <span id="print_status_cause" class="font-bold border-b border-dotted border-black px-2"></span>
+            </p>
+            
+            <p class="pl-8 leading-relaxed" id="print_charge_section" style="display: none;">
+                <strong>กรณีชำรุดแบบเรียกเก็บเงิน:</strong> ค่าเสียหายของมิเตอร์คิดเป็นจำนวนเงิน <span id="print_charge_num" class="font-bold border-b border-dotted border-black px-2"></span> บาท 
+                (ตัวหนังสือ: <span id="print_charge_thai" class="font-bold border-b border-dotted border-black px-2"></span>)
+            </p>
+
+            <div class="pt-4 flex justify-end">
+                <div class="text-center w-64 space-y-4">
+                    <p>จึงเรียนมาเพื่อโปรดพิจารณาและอนุมัติ</p>
+                    <div class="pt-6">
+                        <p>ลงชื่อ..........................................................</p>
+                        <p class="mt-1">( <span id="print_inspector_name" class="px-2"></span> )</p>
+                        <p class="text-xs text-gray-500 mt-1">ผู้รายงาน / พชง.กฟส.บัวเชด</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2 Approval (กฟภ.) -->
+        <div class="mt-6 pt-6 border-t border-dashed border-gray-400 text-xs space-y-3">
+            <p class="font-bold">เรียน ผจก.กฟส.บัวเชด,</p>
+            <p class="pl-4 leading-relaxed">
+                ได้ตรวจสอบพิจารณาแล้วเห็นควรดำเนินการสับเปลี่ยนมิเตอร์ใหม่ทดแทนเครื่องที่ชำรุด โดยให้ผู้เกี่ยวข้องดำเนินการตามระเบียบ กฟภ. ดังต่อไปนี้:
+            </p>
+            <div class="pl-8 space-y-1">
+                <p>[ <i class="fas fa-check text-[10px]"></i> ] ดำเนินการสับเปลี่ยนติดตั้งมิเตอร์ทดแทน ขนาด <span id="print_action_size" class="font-bold border-b border-dotted border-black px-1"></span></p>
+                <p>[ <span id="print_check_avg" class="inline-block min-w-[12px] text-center font-bold"></span> ] ดำเนินการส่งแผนก พบช. เพื่อประเมินเฉลี่ยปรับปรุงหน่วยกระแสไฟฟ้าตามระเบียบ</p>
+                <p>[ <i class="fas fa-check text-[10px]"></i> ] ตรวจสอบตราตะกั่วและการซีลฝาครอบขั้วมิเตอร์เรียบร้อย</p>
+            </div>
+            <div class="flex justify-between items-start pt-4 px-4 gap-4">
+                <div class="flex-1">
+                    <p>จึงเรียนเสนอเพื่อโปรดพิจารณาอนุมัติ</p>
+                    <p class="mt-8">ลงชื่อ........................................................................</p>
+                    <p class="pl-6 text-[10px] text-gray-500">พชง.กฟส.บัวเชด</p>
+                    <p class="mt-2">วันที่............./............................/.....................</p>
+                </div>
+                <div class="border border-black p-3 rounded-lg w-80 text-left">
+                    <p class="font-bold mb-1">คำสั่งอนุมัติ / ผจก.กฟส.บัวเชด</p>
+                    <p class="mb-6">[ <i class="fas fa-check text-[10px]"></i> ] อนุมัติให้ดำเนินการตามเสนอ</p>
+                    <p>ลงชื่อ.....................................................................</p>
+                    <p class="pl-6 mt-1">(.....................................................................)</p>
+                    <p class="pl-6 text-[10px] text-gray-500">ผจก.กฟส.บัวเชด</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3 Meter Swap Details -->
+        <div class="mt-6 pt-4 border-t-2 border-black grid grid-cols-2 gap-4 text-xs">
+            <div class="border border-gray-300 p-3 rounded-xl bg-slate-50">
+                <p class="font-bold text-sm border-b border-gray-300 pb-1 mb-2 text-red-700"><i class="fas fa-arrow-down mr-1"></i> ข้อมูลมิเตอร์ถอนคืน</p>
+                <p class="mb-1"><strong>PEA มิเตอร์ถอนคืน:</strong> <span id="print_uninstall_no" class="font-bold"></span></p>
+                <p class="mb-1"><strong>ขนาดมิเตอร์:</strong> <span id="print_uninstall_size" class="font-bold"></span></p>
+                <p><strong>เลขอ่านได้ (หน่วยสุดท้าย):</strong> <span id="print_uninstall_unit" class="font-bold"></span> kWh</p>
+            </div>
+            <div class="border border-gray-300 p-3 rounded-xl bg-slate-50">
+                <p class="font-bold text-sm border-b border-gray-300 pb-1 mb-2 text-green-700"><i class="fas fa-arrow-up mr-1"></i> ข้อมูลมิเตอร์ติดตั้งคืน</p>
+                <p class="mb-1"><strong>PEA มิเตอร์ติดตั้งแทน:</strong> <span id="print_install_no" class="font-bold"></span></p>
+                <p class="mb-1"><strong>ขนาดมิเตอร์:</strong> <span id="print_install_size" class="font-bold"></span></p>
+                <p><strong>เลขอ่านได้เริ่มต้น:</strong> <span id="print_install_unit" class="font-bold"></span> kWh</p>
+            </div>
+        </div>
+
+        <!-- Section 4 Embedded Photos for Reference inside PDF -->
+        <div class="mt-6 pt-4 border-t border-gray-200">
+            <p class="text-xs font-bold text-gray-500 mb-2"><i class="fas fa-image mr-1"></i> รูปภาพประกอบใบสับเปลี่ยนมิเตอร์</p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="border border-gray-200 rounded-lg p-2 text-center bg-gray-50">
+                    <p class="text-[10px] text-gray-500 mb-1">รูปที่ 1: หน้าปัดตัวเลขหน่วย (มิเตอร์ถอนคืน)</p>
+                    <div class="h-32 flex items-center justify-center overflow-hidden bg-white border border-gray-100 rounded">
+                        <img id="print_img_1" class="h-full object-contain" src="" alt="ไม่มีภาพประกอบ">
+                    </div>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-2 text-center bg-gray-50">
+                    <p class="text-[10px] text-gray-500 mb-1">รูปที่ 2: สภาพมิเตอร์และตู้ติดตั้ง (มิเตอร์ติดตั้งคืน)</p>
+                    <div class="h-32 flex items-center justify-center overflow-hidden bg-white border border-gray-100 rounded">
+                        <img id="print_img_2" class="h-full object-contain" src="" alt="ไม่มีภาพประกอบ">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button for Screen Viewer (Hides on PDF Printing) -->
+        <div class="mt-8 flex justify-center no-print">
+            <button onclick="closePrintPreview()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-6 rounded-xl shadow transition flex items-center space-x-2">
+                <i class="fas fa-times-circle"></i>
+                <span>ปิดหน้าตัวอย่างการพิมพ์</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-xs text-gray-400 no-print">
+        <p>© 2026 การไฟฟ้าส่วนภูมิภาค (PEA). สงวนลิขสิทธิ์</p>
+        <p class="mt-1">พัฒนาเพื่อสนับสนุนภารกิจตรวจสอบและทดสอบมิเตอร์ผู้ใช้ไฟฟ้า</p>
+    </footer>
+
+    <!-- JavaScript System -->
+    <script>
+        // สำคัญ: เปลี่ยน URL นี้เป็น URL Web App หลังจากการ deploy Google Apps Script ของคุณแล้ว
+        const WEB_APP_URL = ""; 
+
+        // State เก็บข้อมูลรูปภาพ Base64
+        const imageData = {
+            photo_1: null,
+            photo_2: null
+        };
+
+        // ข้อมูลตัวอย่างเริ่มต้น (กรณีที่ยังไม่ได้กำหนด WEB_APP_URL)
+        let cachedRecords = [
+            {
+                timestamp: new Date().toISOString(),
+                ca_no: "020012345678",
+                customer_name: "นายสมชาย ใจดี",
+                meter_no: "PEA-559281",
+                meter_type: "ชนิดจานหมุน",
+                meter_size: "15(45) A 1P 2W",
+                customer_address: "123 ม.5 ต.บัวเชด อ.บัวเชด จ.สุรินทร์ 32230",
+                customer_phone: "081-234-5678",
+                check_other_details: "พบความเสียหายจากภายนอก เครื่องหมุนสะดุด",
+                check_unit: "4520.1",
+                inspector_name: "นายสิริชัย รักษ์ดี (รหัส 508123)",
+                meter_status: "ชำรุด",
+                final_cause: "หมุนติดขัด",
+                charge_amount_num: "",
+                charge_amount_thai: "",
+                request_average_unit: "ใช่",
+                uninstall_meter_no: "PEA-559281",
+                uninstall_unit: "4520.1",
+                install_meter_no: "PEA-990124",
+                install_unit: "0",
+                photo_1_url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=400",
+                photo_2_url: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=400"
+            }
+        ]; 
+
+        window.onload = function() {
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+            initFormListeners();
+            loadSheetRecords(); // โหลดข้อมูลประวัติล่าสุด
+        };
+
+        // สลับแท็บการทำงาน
+        function switchTab(tabName) {
+            const inputTab = document.getElementById('input-tab-content');
+            const searchTab = document.getElementById('search-tab-content');
+            const btnInput = document.getElementById('btn-input-tab');
+            const btnSearch = document.getElementById('btn-search-tab');
+
+            if (tabName === 'input-tab') {
+                inputTab.classList.remove('hidden');
+                searchTab.classList.add('hidden');
+                btnInput.className = "flex-1 py-2.5 px-4 rounded-lg font-bold text-sm transition-all duration-200 bg-purple-600 text-white shadow-sm flex items-center justify-center space-x-2";
+                btnSearch.className = "flex-1 py-2.5 px-4 rounded-lg font-bold text-sm transition-all duration-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center space-x-2";
+            } else {
+                inputTab.classList.add('hidden');
+                searchTab.classList.remove('hidden');
+                btnInput.className = "flex-1 py-2.5 px-4 rounded-lg font-bold text-sm transition-all duration-200 text-gray-600 hover:bg-gray-50 flex items-center justify-center space-x-2";
+                btnSearch.className = "flex-1 py-2.5 px-4 rounded-lg font-bold text-sm transition-all duration-200 bg-purple-600 text-white shadow-sm flex items-center justify-center space-x-2";
+                loadSheetRecords(); // รีเฟรชประวัติข้อมูล
+            }
+        }
+
+        // จัดการวันเวลาปัจจุบัน
+        function updateTimestamp() {
+            const now = new Date();
+            const thaiOptions = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false
+            };
+            
+            const formatter = new Intl.DateTimeFormat('th-TH', thaiOptions);
+            const dateStr = formatter.format(now);
+            
+            const formTimestamp = document.getElementById('timestamp_display');
+            if (formTimestamp) formTimestamp.value = dateStr;
+
+            const dateHeader = document.getElementById('current-date-header');
+            const timeHeader = document.getElementById('current-time-header');
+            if (dateHeader && timeHeader) {
+                dateHeader.innerText = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+                timeHeader.innerText = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+        }
+
+        // ตัวแปลงเลขอารบิกเป็นเงินภาษาไทย
+        function arabicToThaiBaht(num) {
+            if (isNaN(num) || num === null || num === "") return "";
+            num = parseFloat(num);
+            if (num === 0) return "ศูนย์บาทถ้วน";
+            
+            const textDigit = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
+            const textUnit = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
+            
+            let bahtText = "";
+            let [baht, satang] = num.toFixed(2).split(".");
+            
+            bahtText += convertSection(baht, textDigit, textUnit);
+            if (parseInt(baht) > 0) {
+                bahtText += "บาท";
+            }
+            
+            if (parseInt(satang) === 0) {
+                bahtText += "ถ้วน";
+            } else {
+                bahtText += convertSection(satang, textDigit, textUnit) + "สตางค์";
+            }
+            return bahtText;
+        }
+
+        function convertSection(numberStr, textDigit, textUnit) {
+            let length = numberStr.length;
+            let result = "";
+            for (let i = 0; i < length; i++) {
+                let digit = parseInt(numberStr.charAt(i));
+                if (digit !== 0) {
+                    let position = length - 1 - i;
+                    if (position > 6) {
+                        let millionPart = numberStr.slice(0, length - 6);
+                        let restPart = numberStr.slice(length - 6);
+                        return convertSection(millionPart, textDigit, textUnit) + "ล้าน" + convertSection(restPart, textDigit, textUnit);
+                    }
+                    
+                    if (position === 1 && digit === 2) {
+                        result += "ยี่";
+                    } else if (position === 1 && digit === 1) {
+                        result += "";
+                    } else if (position === 0 && digit === 1 && length > 1 && numberStr.charAt(i - 1) !== '0') {
+                        result += "เอ็ด";
+                    } else {
+                        result += textDigit[digit];
+                    }
+                    result += textUnit[position];
+                }
+            }
+            return result;
+        }
+
+        // จัดการ event ของฟอร์ม
+        function initFormListeners() {
+            const meterStatusRadios = document.querySelectorAll('input[name="meter_status"]');
+            const damageCauseRadios = document.querySelectorAll('input[name="damage_cause"]');
+            const damageSection = document.getElementById('damage-section');
+            const otherCauseContainer = document.getElementById('other-cause-container');
+            const otherCauseText = document.getElementById('other_cause_text');
+            const form = document.getElementById('meterForm');
+            
+            const chargeContainer = document.getElementById('charge-amount-container');
+            const chargeAmountNumInput = document.getElementById('charge_amount_num');
+            const chargeAmountThaiInput = document.getElementById('charge_amount_thai');
+
+            chargeAmountNumInput.addEventListener('input', function() {
+                const val = this.value;
+                if (val === "" || val < 0) {
+                    chargeAmountThaiInput.value = "";
+                } else {
+                    chargeAmountThaiInput.value = arabicToThaiBaht(val);
+                }
+            });
+
+            meterStatusRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'ชำรุด') {
+                        damageSection.classList.remove('opacity-50');
+                        damageSection.style.pointerEvents = 'auto';
+                        damageCauseRadios.forEach(r => r.required = true);
+                    } else {
+                        damageSection.classList.add('opacity-50');
+                        damageSection.style.pointerEvents = 'none';
+                        damageCauseRadios.forEach(r => {
+                            r.required = false;
+                            r.checked = false;
+                        });
+                        otherCauseContainer.classList.add('hidden');
+                        otherCauseText.required = false;
+                        otherCauseText.value = "";
+
+                        chargeContainer.classList.add('hidden');
+                        chargeAmountNumInput.required = false;
+                        chargeAmountNumInput.value = "";
+                        chargeAmountThaiInput.value = "";
+                        
+                        const requestAverageUnitCheckbox = document.querySelector('input[name="request_average_unit"]');
+                        if (requestAverageUnitCheckbox) {
+                            requestAverageUnitCheckbox.checked = false;
+                        }
+                    }
+                });
+            });
+
+            damageSection.classList.add('opacity-50');
+            damageSection.style.pointerEvents = 'none';
+
+            damageCauseRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const causeType = this.getAttribute('data-type');
+                    
+                    if (causeType === 'paid') {
+                        chargeContainer.classList.remove('hidden');
+                        chargeAmountNumInput.required = true;
+                    } else {
+                        chargeContainer.classList.add('hidden');
+                        chargeAmountNumInput.required = false;
+                        chargeAmountNumInput.value = "";
+                        chargeAmountThaiInput.value = "";
+                    }
+
+                    if (this.id === 'other_free_radio' || this.id === 'other_paid_radio') {
+                        otherCauseContainer.classList.remove('hidden');
+                        otherCauseText.required = true;
+                        otherCauseText.focus();
+                    } else {
+                        otherCauseContainer.classList.add('hidden');
+                        otherCauseText.required = false;
+                        otherCauseText.value = "";
+                    }
+                });
+            });
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await submitData();
+            });
+        }
+
+        // แสดงพรีวิวรูปภาพที่เลือก
+        function previewImage(input, previewId, placeholderId, removeBtnId) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.size > 4 * 1024 * 1024) {
+                showToast("ขนาดภาพต้องไม่เกิน 4MB", "fas fa-exclamation-triangle", "text-amber-500");
+                input.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgElement = document.getElementById(previewId);
+                const container = document.getElementById(previewId + '_container');
+                const placeholder = document.getElementById(placeholderId);
+                const removeBtn = document.getElementById(removeBtnId);
+
+                imgElement.src = e.target.result;
+                container.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                removeBtn.classList.remove('hidden');
+
+                const base64Data = e.target.result.split(',')[1];
+                const fileType = file.type;
+                
+                if (input.id === 'photo_1') {
+                    imageData.photo_1 = { data: base64Data, mimeType: fileType, previewUrl: e.target.result };
+                } else if (input.id === 'photo_2') {
+                    imageData.photo_2 = { data: base64Data, mimeType: fileType, previewUrl: e.target.result };
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage(inputId, previewId, placeholderId, removeBtnId) {
+            document.getElementById(inputId).value = "";
+            document.getElementById(previewId + '_container').classList.add('hidden');
+            document.getElementById(placeholderId).classList.remove('hidden');
+            document.getElementById(removeBtnId).classList.add('hidden');
+
+            if (inputId === 'photo_1') {
+                imageData.photo_1 = null;
+            } else if (inputId === 'photo_2') {
+                imageData.photo_2 = null;
+            }
+        }
+
+        function showToast(message, iconClass = "fas fa-check-circle", iconColorClass = "text-green-400") {
+            const toast = document.getElementById('toast');
+            const msgSpan = document.getElementById('toast-message');
+            const iconSpan = document.getElementById('toast-icon');
+
+            if (!toast) return;
+
+            msgSpan.innerText = message;
+            iconSpan.className = iconColorClass;
+            iconSpan.innerHTML = `<i class="${iconClass}"></i>`;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        // ดึงประวัติข้อมูลบันทึกจากเซิร์ฟเวอร์ชีต
+        async function loadSheetRecords() {
+            if (WEB_APP_URL === "") {
+                showToast("ยังไม่ได้ระบุ WEB_APP_URL ในระบบ หน้าเว็บบริหารงานด้วยประวัติตัวอย่าง", "fas fa-info-circle", "text-blue-500");
+                renderRecords(cachedRecords);
+                return;
+            }
+
+            const tableBody = document.getElementById('records-table-body');
+            try {
+                const response = await fetch(`${WEB_APP_URL}?action=getRecords`);
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    cachedRecords = data;
+                    renderRecords(data);
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">ยังไม่พบรายการข้อมูลบันทึกใน Google Sheets</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Error loading records:", error);
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-red-400"><i class="fas fa-exclamation-circle mr-2"></i> ไม่สามารถเชื่อมต่อกับฐานข้อมูลชีตได้ (เปิดการทำงานด้วยประวัติจำลอง)</td></tr>`;
+                setTimeout(() => {
+                    renderRecords(cachedRecords);
+                }, 500);
+            }
+        }
+
+        // จัดการแสดงตารางรายการประวัติ
+        function renderRecords(records) {
+            const tableBody = document.getElementById('records-table-body');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '';
+
+            if (records.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">ไม่มีประวัติการบันทึกข้อมูล</td></tr>`;
+                return;
+            }
+
+            records.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50/80 transition-colors border-b border-gray-100";
+                
+                const dateObj = new Date(row.timestamp);
+                const shortDate = isNaN(dateObj) ? row.timestamp : dateObj.toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'2-digit'});
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3.5 font-medium text-gray-500">${shortDate}</td>
+                    <td class="px-4 py-3.5 font-bold text-gray-900">${row.ca_no}</td>
+                    <td class="px-4 py-3.5 font-medium text-gray-800">${row.customer_name}</td>
+                    <td class="px-4 py-3.5 text-xs">
+                        <div class="text-red-600 font-semibold">ถอน: ${row.uninstall_meter_no}</div>
+                        <div class="text-green-600 font-semibold">ติด: ${row.install_meter_no}</div>
+                    </td>
+                    <td class="px-4 py-3.5">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${row.meter_status === 'ปกติ' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">
+                            ${row.meter_status === 'ปกติ' ? 'ปกติ' : 'ชำรุด (' + row.final_cause + ')'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3.5 text-center">
+                        <button onclick="previewAndPrintReport(${index})" class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center space-x-1 mx-auto transition">
+                            <i class="fas fa-print"></i>
+                            <span>พิมพ์รายงาน</span>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // ค้นหารายการจากตารางประวัติ
+        function filterRecords() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = cachedRecords.filter(row => 
+                row.customer_name.toLowerCase().includes(query) ||
+                row.ca_no.toLowerCase().includes(query) ||
+                (row.meter_no && row.meter_no.toLowerCase().includes(query)) ||
+                row.uninstall_meter_no.toLowerCase().includes(query) ||
+                row.install_meter_no.toLowerCase().includes(query)
+            );
+            renderRecords(filtered);
+        }
+
+        // นำข้อมูลเข้าระบบพรีวิวเพื่อเตรียมพิมพ์ในรูปแบบเอกสารราชการ PEA A4
+        function previewAndPrintReport(recordIndex) {
+            const data = cachedRecords[recordIndex];
+            
+            const eventDate = new Date(data.timestamp);
+            document.getElementById('print_doc_date').innerText = isNaN(eventDate) ? data.timestamp : eventDate.toLocaleDateString('th-TH', {day:'numeric', month:'long', year:'numeric'});
+            document.getElementById('print_meter_no').innerText = data.meter_no || "-";
+            document.getElementById('print_meter_type').innerText = data.meter_type || "-";
+            document.getElementById('print_meter_size').innerText = data.meter_size;
+            document.getElementById('print_customer_name').innerText = data.customer_name;
+            document.getElementById('print_ca_no').innerText = data.ca_no;
+            document.getElementById('print_customer_address').innerText = data.customer_address;
+            document.getElementById('print_customer_phone').innerText = data.customer_phone || "-";
+            document.getElementById('print_check_details').innerText = data.check_other_details || "ตรวจสอบสภาพและสับเปลี่ยนมิเตอร์ตามวงรอบแผนการบำรุงรักษา";
+            document.getElementById('print_check_unit').innerText = data.check_unit;
+            document.getElementById('print_inspector_name').innerText = data.inspector_name;
+            
+            if (data.meter_status === 'ชำรุด') {
+                document.getElementById('print_status_cause').innerText = "ชำรุดเสียหายด้วยสาเหตุ: " + data.final_cause;
+                
+                if (data.charge_amount_num && parseFloat(data.charge_amount_num) > 0) {
+                    document.getElementById('print_charge_section').style.display = "block";
+                    document.getElementById('print_charge_num').innerText = parseFloat(data.charge_amount_num).toFixed(2);
+                    document.getElementById('print_charge_thai').innerText = data.charge_amount_thai;
+                } else {
+                    document.getElementById('print_charge_section').style.display = "none";
+                }
+            } else {
+                document.getElementById('print_status_cause').innerText = "ปกติทุกประการ";
+                document.getElementById('print_charge_section').style.display = "none";
+            }
+
+            document.getElementById('print_check_avg').innerHTML = data.request_average_unit === 'ใช่' 
+                ? '<i class="fas fa-check text-[10px]"></i>' 
+                : '&nbsp;&nbsp;';
+
+            document.getElementById('print_action_size').innerText = data.meter_size;
+            document.getElementById('print_uninstall_no').innerText = data.uninstall_meter_no;
+            document.getElementById('print_uninstall_size').innerText = data.meter_size;
+            document.getElementById('print_uninstall_unit').innerText = data.uninstall_unit;
+
+            document.getElementById('print_install_no').innerText = data.install_meter_no;
+            document.getElementById('print_install_size').innerText = data.meter_size;
+            document.getElementById('print_install_unit').innerText = data.install_unit;
+
+            const img1 = document.getElementById('print_img_1');
+            const img2 = document.getElementById('print_img_2');
+            
+            img1.src = data.photo_1_url || (data.photo_1 && data.photo_1.previewUrl) || "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=400";
+            img2.src = data.photo_2_url || (data.photo_2 && data.photo_2.previewUrl) || "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=400";
+
+            document.getElementById('print-document').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            setTimeout(() => {
+                window.print();
+            }, 600);
+        }
+
+        function closePrintPreview() {
+            document.getElementById('print-document').classList.add('hidden');
+        }
+
+        // นำข้อมูลจากแบบฟอร์มส่งบันทึกไปยังเซิร์ฟเวอร์
+        async function submitData() {
+            const overlay = document.getElementById('loadingOverlay');
+            const loadingBar = document.getElementById('loading-bar');
+            const loadingText = document.getElementById('loading-text');
+            
+            overlay.classList.remove('hidden');
+            loadingBar.style.width = '20%';
+            loadingText.innerText = "กำลังจัดเตรียมโครงสร้างข้อมูลหลัก...";
+            
+            const formData = new FormData(document.getElementById('meterForm'));
+            const dataObj = {};
+            
+            formData.forEach((value, key) => {
+                dataObj[key] = value;
+            });
+
+            dataObj.timestamp = new Date().toISOString();
+            
+            // ประมวลผลเหตุที่ชำรุด
+            if (dataObj.meter_status === 'ชำรุด') {
+                if (dataObj.damage_cause === 'ชำรุดแบบไม่คิดเงินอื่นๆ' || dataObj.damage_cause === 'ชำรุดแบบคิดเงินอื่นๆ') {
+                    dataObj.final_cause = `${dataObj.damage_cause} (${dataObj.other_cause_text || 'อื่นๆ'})`;
+                } else {
+                    dataObj.final_cause = dataObj.damage_cause;
+                }
+            } else {
+                dataObj.final_cause = 'ปกติ';
+            }
+
+            // แนบข้อมูลไฟล์รูปภาพ Base64
+            dataObj.photo_1 = imageData.photo_1;
+            dataObj.photo_2 = imageData.photo_2;
+
+            loadingBar.style.width = '50%';
+            loadingText.innerText = "กำลังบีบอัดข้อมูลและเข้ารหัสรูปภาพเตรียมส่งเซิร์ฟเวอร์...";
+
+            // ตรวจสอบว่ามี API URL หรือไม่ ถ้าไม่มีให้จำลองข้อมูลแบบ Local
+            if (WEB_APP_URL === "") {
+                setTimeout(() => {
+                    loadingBar.style.width = '100%';
+                    loadingText.innerText = "บันทึกข้อมูลแบบจำลองเสร็จสิ้น!";
+                    
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        
+                        cachedRecords.unshift({
+                            timestamp: dataObj.timestamp,
+                            ca_no: dataObj.ca_no,
+                            customer_name: dataObj.customer_name,
+                            meter_no: dataObj.meter_no,
+                            meter_type: dataObj.meter_type,
+                            meter_size: dataObj.meter_size,
+                            customer_address: dataObj.customer_address,
+                            customer_phone: dataObj.customer_phone,
+                            check_other_details: dataObj.check_other_details,
+                            check_unit: dataObj.check_unit,
+                            inspector_name: dataObj.inspector_name,
+                            meter_status: dataObj.meter_status,
+                            final_cause: dataObj.final_cause,
+                            charge_amount_num: dataObj.charge_amount_num || "",
+                            charge_amount_thai: dataObj.charge_amount_thai || "",
+                            request_average_unit: dataObj.request_average_unit || "ไม่ใช่",
+                            uninstall_meter_no: dataObj.uninstall_meter_no,
+                            uninstall_unit: dataObj.uninstall_unit,
+                            install_meter_no: dataObj.install_meter_no,
+                            install_unit: dataObj.install_unit,
+                            photo_1: dataObj.photo_1,
+                            photo_2: dataObj.photo_2
+                        });
+                        
+                        showToast("บันทึกข้อมูลจำลองลงตารางเรียบร้อยแล้ว! (สามารถค้นหาและตรวจสอบได้จากแท็บประวัติ)", "fas fa-check-circle", "text-green-500");
+                        
+                        resetFormAndState();
+                        switchTab('search-tab');
+                    }, 800);
+                }, 1500);
+                return;
+            }
+
+            try {
+                // ยิง POST ข้อมูล JSON ไปยัง Google Apps Script Web App
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8' // ตั้งค่าเพื่อให้ข้ามข้อจำกัด CORS Pre-flight ในบางกรณีของ Apps Script
+                    },
+                    body: JSON.stringify(dataObj)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === "success") {
+                    loadingBar.style.width = '100%';
+                    loadingText.innerText = "จัดเก็บข้อมูลเรียบร้อย!";
+                    
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        showToast(`จัดเก็บข้อมูลลง Sheet และแยกเข้าโฟลเดอร์ Drive ประจำเดือน (${result.folder}) เรียบร้อยแล้ว!`, "fas fa-check-circle", "text-green-400");
+                        
+                        resetFormAndState();
+                        switchTab('search-tab');
+                    }, 800);
+                } else {
+                    throw new Error(result.message || "มีข้อผิดพลาดบางอย่างบนเซิร์ฟเวอร์");
+                }
+
+            } catch (error) {
+                console.error("Submit Error:", error);
+                overlay.classList.add('hidden');
+                showToast("เครือข่ายขัดข้อง ไม่สามารถอัปโหลดข้อมูลได้: " + error.message, "fas fa-exclamation-triangle", "text-red-500");
+            }
+        }
+
+        // รีเซ็ตค่าหน้าฟอร์มระบบ
+        function resetFormAndState() {
+            document.getElementById('meterForm').reset();
+            removeImage('photo_1', 'preview_img_1', 'upload_placeholder_1', 'btn_remove_1');
+            removeImage('photo_2', 'preview_img_2', 'upload_placeholder_2', 'btn_remove_2');
+            
+            const damageSection = document.getElementById('damage-section');
+            damageSection.classList.add('opacity-50');
+            damageSection.style.pointerEvents = 'none';
+            document.getElementById('other-cause-container').classList.add('hidden');
+            document.getElementById('charge-amount-container').classList.add('hidden');
+            
+            updateTimestamp();
+        }
+    </script>
+</body>
+</html>
