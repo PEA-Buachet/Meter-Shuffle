@@ -281,7 +281,7 @@
                         <div class="bg-amber-50 p-4 rounded-xl border border-amber-200">
                             <h4 class="text-sm font-bold text-amber-800 mb-3 flex items-center justify-between">
                                 <span>3.2 ชำรุดแบบคิดเงิน (ความเสียหายจากพฤติกรรม/อุบัติเหตุผู้ใช้ไฟฟ้า)</span>
-                                <span class="bg-amber-200 text-amber-800 text-[10px] px-2 py-0.5 rounded font-bold">เรียกเก็บเงิน</span>
+                                <span class="bg-amber-200 text-amber-800 text-[10px] px-2 py-0.5 rounded font-bold font-bold">เรียกเก็บเงิน</span>
                             </h4>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                                 <label class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 cursor-pointer text-[11px] md:text-xs hover:bg-gray-50">
@@ -317,7 +317,7 @@
                                     <div class="relative rounded-lg shadow-sm">
                                         <input type="number" step="any" min="0" id="charge_amount_num" name="charge_amount_num" class="w-full pl-4 pr-12 py-2.5 rounded-lg border border-amber-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none bg-white text-sm text-gray-800 font-semibold" placeholder="เช่น 1250.00">
                                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                            <span class="text-gray-400 text-xs font-bold">บาท</span>
+                                            <span class="text-gray-400 text-xs font-bold font-bold">บาท</span>
                                         </div>
                                     </div>
                                 </div>
@@ -332,7 +332,7 @@
                         <div class="bg-purple-50 p-4 rounded-xl border border-purple-200">
                             <h4 class="text-sm font-bold text-purple-900 mb-3 flex items-center justify-between">
                                 <span>3.3 แจ้ง พบช.เฉลี่ยปรับปรุงหน่วย</span>
-                                <span class="bg-purple-200 text-purple-800 text-[10px] px-2 py-0.5 rounded font-bold">แผนกวิเคราะห์และประเมินผล</span>
+                                <span class="bg-purple-200 text-purple-800 text-[10px] px-2 py-0.5 rounded font-bold font-bold">แผนกวิเคราะห์และประเมินผล</span>
                             </h4>
                             <label class="flex items-start space-x-3 cursor-pointer p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
                                 <input type="checkbox" name="request_average_unit" value="ใช่" class="mt-1 w-5 h-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
@@ -472,7 +472,7 @@
                             <p class="font-medium">คำชี้แจงก่อนบันทึก:</p>
                             <ul class="list-disc pl-4 mt-1 space-y-1">
                                 <li>กรุณาตรวจสอบความถูกต้องของข้อมูลมิเตอร์ถอนคืนและติดตั้งก่อนกดบันทึก</li>
-                                <li>ระบบจะดำเนินการบันทึกข้อมูลเข้า Google Sheets และอัปโหลดภาพแยกตามโฟลเดอร์เดือน/ปี อัตโนมัติ</li>
+                                <li>ระบบจะดำเนินการบันทึกข้อมูลเข้า Google Sheets อัปโหลดภาพ และสร้างเอกสารตามสิทธิ์ของคุณอัตโนมัติ</li>
                             </ul>
                         </div>
                         <button type="submit" id="submitBtn" class="pea-purple hover:pea-purple-hover text-white font-bold py-3.5 px-8 rounded-xl shadow-md flex items-center justify-center space-x-2 transition focus:outline-none focus:ring-2 focus:ring-purple-300 w-full md:w-auto">
@@ -489,7 +489,7 @@
         <div id="search-tab-content" class="hidden">
             <div class="bg-white rounded-2xl p-6 shadow-sm mb-6 border-l-4 border-purple-600">
                 <h2 class="text-xl font-bold text-gray-800 mb-1">ค้นหาและพิมพ์รายงานบันทึกมิเตอร์</h2>
-                <p class="text-xs text-gray-500">พิมพ์เอกสารทางการและบันทึกรายงานเป็น PDF จากรายการข้อมูลประวัติของเซิร์ฟเวอร์</p>
+                <p class="text-xs text-gray-500">พิมพ์เอกสารทางการและดาวน์โหลดไฟล์รายงาน PDF/Google Doc จากประวัติของเซิร์ฟเวอร์</p>
             </div>
 
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
@@ -514,7 +514,7 @@
                                 <th class="px-4 py-3">ชื่อผู้ใช้ไฟฟ้า</th>
                                 <th class="px-4 py-3">ถอนคืน / ติดตั้ง</th>
                                 <th class="px-4 py-3">ผลการตรวจ</th>
-                                <th class="px-4 py-3 text-center">จัดการ</th>
+                                <th class="px-4 py-3 text-center font-bold">จัดการเอกสาร</th>
                             </tr>
                         </thead>
                         <tbody id="records-table-body" class="divide-y divide-gray-100 text-gray-700">
@@ -540,7 +540,7 @@
                 <span class="text-purple-600 font-bold text-xs">PEA</span>
             </div>
             <h4 class="text-lg font-bold text-gray-800 mt-4">กำลังดำเนินการ...</h4>
-            <p id="loading-text" class="text-xs text-gray-500 mt-1.5 text-center">กำลังประมวลผลข้อมูล อัปโหลดรูปภาพลงโฟลเดอร์ Google Drive และอัปเดต Google Sheet</p>
+            <p id="loading-text" class="text-xs text-gray-500 mt-1.5 text-center">กำลังส่งข้อมูลและแนบรูปภาพอัปโหลดลง Drive...</p>
             <div class="w-full bg-gray-200 rounded-full h-1.5 mt-4">
                 <div id="loading-bar" class="pea-purple h-1.5 rounded-full transition-all duration-300" style="width: 10%"></div>
             </div>
@@ -696,7 +696,7 @@
     <!-- JavaScript System -->
     <script>
         // สำคัญ: เปลี่ยน URL นี้เป็น URL Web App หลังจากการ deploy Google Apps Script ของคุณแล้ว
-        const WEB_APP_URL = ""; 
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyiyqvq67vzr4SQrcM2koXqnExI_ACeiXGJobFLTEMzLy0r1Hs7XVl_HiPOTzGAvZzH/exec"; 
 
         // State เก็บข้อมูลรูปภาพ Base64
         const imageData = {
@@ -728,7 +728,9 @@
                 install_meter_no: "PEA-990124",
                 install_unit: "0",
                 photo_1_url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=400",
-                photo_2_url: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=400"
+                photo_2_url: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=400",
+                doc_url: "#",
+                pdf_url: "#"
             }
         ]; 
 
@@ -1042,6 +1044,27 @@
                 const dateObj = new Date(row.timestamp);
                 const shortDate = isNaN(dateObj) ? row.timestamp : dateObj.toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'2-digit'});
 
+                // ดึง URL เอกสารมาสร้างปุ่ม (หากไม่มี จะซ่อนไว้ หรือแสดงสีเทา)
+                const docButton = row.doc_url && row.doc_url !== "#" ? 
+                    `<a href="${row.doc_url}" target="_blank" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded text-xs flex items-center space-x-1 transition shadow-sm">
+                        <i class="fas fa-file-word"></i>
+                        <span>เปิด Google Doc</span>
+                    </a>` : 
+                    `<button disabled class="bg-gray-100 text-gray-400 font-bold px-2 py-1 rounded text-xs flex items-center space-x-1 cursor-not-allowed">
+                        <i class="fas fa-file-word"></i>
+                        <span>Doc ไม่พร้อมใช้งาน</span>
+                    </button>`;
+
+                const pdfButton = row.pdf_url && row.pdf_url !== "#" ? 
+                    `<a href="${row.pdf_url}" target="_blank" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-2 py-1 rounded text-xs flex items-center space-x-1 transition shadow-sm">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>ดาวน์โหลด PDF</span>
+                    </a>` : 
+                    `<button disabled class="bg-gray-100 text-gray-400 font-bold px-2 py-1 rounded text-xs flex items-center space-x-1 cursor-not-allowed">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>PDF ไม่พร้อม</span>
+                    </button>`;
+
                 tr.innerHTML = `
                     <td class="px-4 py-3.5 font-medium text-gray-500">${shortDate}</td>
                     <td class="px-4 py-3.5 font-bold text-gray-900">${row.ca_no}</td>
@@ -1055,11 +1078,15 @@
                             ${row.meter_status === 'ปกติ' ? 'ปกติ' : 'ชำรุด (' + row.final_cause + ')'}
                         </span>
                     </td>
-                    <td class="px-4 py-3.5 text-center">
-                        <button onclick="previewAndPrintReport(${index})" class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center space-x-1 mx-auto transition">
-                            <i class="fas fa-print"></i>
-                            <span>พิมพ์รายงาน</span>
-                        </button>
+                    <td class="px-4 py-3.5">
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-1.5">
+                            ${docButton}
+                            ${pdfButton}
+                            <button onclick="previewAndPrintReport(${index})" class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold px-2 py-1 rounded text-xs flex items-center space-x-1 transition">
+                                <i class="fas fa-print"></i>
+                                <span>พรีวิวใบงาน</span>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tableBody.appendChild(tr);
@@ -1176,8 +1203,8 @@
             dataObj.photo_1 = imageData.photo_1;
             dataObj.photo_2 = imageData.photo_2;
 
-            loadingBar.style.width = '50%';
-            loadingText.innerText = "กำลังบีบอัดข้อมูลและเข้ารหัสรูปภาพเตรียมส่งเซิร์ฟเวอร์...";
+            loadingBar.style.width = '40%';
+            loadingText.innerText = "กำลังบีบอัดข้อมูลและอัปโหลดไฟล์รูปภาพลง Drive...";
 
             // ตรวจสอบว่ามี API URL หรือไม่ ถ้าไม่มีให้จำลองข้อมูลแบบ Local
             if (WEB_APP_URL === "") {
@@ -1210,10 +1237,12 @@
                             install_meter_no: dataObj.install_meter_no,
                             install_unit: dataObj.install_unit,
                             photo_1: dataObj.photo_1,
-                            photo_2: dataObj.photo_2
+                            photo_2: dataObj.photo_2,
+                            doc_url: "#",
+                            pdf_url: "#"
                         });
                         
-                        showToast("บันทึกข้อมูลจำลองลงตารางเรียบร้อยแล้ว! (สามารถค้นหาและตรวจสอบได้จากแท็บประวัติ)", "fas fa-check-circle", "text-green-500");
+                        showToast("บันทึกข้อมูลจำลองลงตารางเรียบร้อยแล้ว! (คุณสามารถตรวจสอบและทดสอบพิมพ์ได้จากแท็บประวัติ)", "fas fa-check-circle", "text-green-500");
                         
                         resetFormAndState();
                         switchTab('search-tab');
@@ -1227,7 +1256,7 @@
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'text/plain;charset=utf-8' // ตั้งค่าเพื่อให้ข้ามข้อจำกัด CORS Pre-flight ในบางกรณีของ Apps Script
+                        'Content-Type': 'text/plain;charset=utf-8'
                     },
                     body: JSON.stringify(dataObj)
                 });
@@ -1236,14 +1265,24 @@
                 
                 if (result.status === "success") {
                     loadingBar.style.width = '100%';
-                    loadingText.innerText = "จัดเก็บข้อมูลเรียบร้อย!";
+                    loadingText.innerText = "สร้างเอกสารรายงานเรียบร้อย!";
                     
                     setTimeout(() => {
                         overlay.classList.add('hidden');
-                        showToast(`จัดเก็บข้อมูลลง Sheet และแยกเข้าโฟลเดอร์ Drive ประจำเดือน (${result.folder}) เรียบร้อยแล้ว!`, "fas fa-check-circle", "text-green-400");
+                        
+                        // สร้างหน้าต่าง Modal แสดงลิงก์เอกสารทันทีหลังจากกดบันทึกสำเร็จ
+                        showToast(`จัดเก็บข้อมูลลง Sheet และสร้างเอกสาร Google Doc สำเร็จ!`, "fas fa-check-circle", "text-green-400");
                         
                         resetFormAndState();
                         switchTab('search-tab');
+                        
+                        // เปิดหน้าต่างใหม่แสดงลิงก์เอกสารเพื่อให้ผู้ใช้งานคลิกได้ทันที
+                        if (result.doc_url) {
+                            const openDoc = confirm("ระบบสร้างไฟล์รายงานสำเร็จแล้วต้องการเปิดดูไฟล์ Google Doc เลยหรือไม่?");
+                            if (openDoc) {
+                                window.open(result.doc_url, "_blank");
+                            }
+                        }
                     }, 800);
                 } else {
                     throw new Error(result.message || "มีข้อผิดพลาดบางอย่างบนเซิร์ฟเวอร์");
@@ -1252,7 +1291,7 @@
             } catch (error) {
                 console.error("Submit Error:", error);
                 overlay.classList.add('hidden');
-                showToast("เครือข่ายขัดข้อง ไม่สามารถอัปโหลดข้อมูลได้: " + error.message, "fas fa-exclamation-triangle", "text-red-500");
+                showToast("ไม่สามารถอัปโหลดข้อมูลได้: " + error.message, "fas fa-exclamation-triangle", "text-red-500");
             }
         }
 
