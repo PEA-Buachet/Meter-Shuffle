@@ -8,10 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font Prompt & Sarabun for Print -->
+    <!-- Google Font Prompt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         body {
@@ -30,29 +30,12 @@
         .border-pea {
             border-color: #8e44ad;
         }
-
-        /* สำหรับหน้าจอป้อนข้อมูลตอนสั่งพิมพ์ */
-        @media print {
-            body {
-                background-color: #ffffff;
-                font-family: 'Sarabun', sans-serif;
-            }
-            header, main, footer, .no-print, #toast {
-                display: none !important;
-            }
-            #print-document {
-                display: block !important;
-                width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-        }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
     <!-- Header -->
-    <header class="pea-purple text-white shadow-lg py-4 px-6 sticky top-0 z-40 no-print">
+    <header class="pea-purple text-white shadow-lg py-4 px-6 sticky top-0 z-40">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="bg-white p-1.5 rounded-full text-purple-700 w-10 h-10 flex items-center justify-center font-bold text-lg shadow">
@@ -70,7 +53,7 @@
     </header>
 
     <!-- Navigation Tab Bar -->
-    <div class="max-w-4xl mx-auto px-4 mt-6 no-print">
+    <div class="max-w-4xl mx-auto px-4 mt-6">
         <div class="flex space-x-2 bg-white p-1.5 rounded-xl shadow-sm border border-gray-100">
             <button onclick="switchTab('input-tab')" id="btn-input-tab" class="flex-1 py-2.5 px-4 rounded-lg font-bold text-sm transition-all duration-200 bg-purple-600 text-white shadow-sm flex items-center justify-center space-x-2">
                 <i class="fas fa-edit"></i>
@@ -84,7 +67,7 @@
     </div>
 
     <!-- Main Container -->
-    <main class="max-w-4xl mx-auto px-4 mt-6 no-print">
+    <main class="max-w-4xl mx-auto px-4 mt-6">
         
         <!-- Tab 1: Form Input -->
         <div id="input-tab-content">
@@ -99,7 +82,7 @@
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
                     </span>
-                    <span class="font-medium">เชื่อมต่อกับ Google Doc Template เรียบร้อย</span>
+                    <span class="font-medium">Template: 1RnSoT... (Docs)</span>
                 </div>
             </div>
 
@@ -481,7 +464,7 @@
                             <p class="font-medium">คำชี้แจงก่อนบันทึก:</p>
                             <ul class="list-disc pl-4 mt-1 space-y-1">
                                 <li>กรุณาตรวจสอบความถูกต้องของข้อมูลมิเตอร์ถอนคืนและติดตั้งก่อนกดบันทึก</li>
-                                <li>ระบบจะดำเนินการบันทึกข้อมูลเข้า Google Sheets อัปโหลดภาพ และสร้างเอกสารตามสิทธิ์ของคุณอัตโนมัติ</li>
+                                <li>ระบบจะดำเนินการบันทึกข้อมูลเข้า Google Sheets อัปโหลดภาพ และสร้างเอกสารรายงาน Doc/PDF อัตโนมัติ</li>
                             </ul>
                         </div>
                         <button type="submit" id="submitBtn" class="pea-purple hover:pea-purple-hover text-white font-bold py-3.5 px-8 rounded-xl shadow-md flex items-center justify-center space-x-2 transition focus:outline-none focus:ring-2 focus:ring-purple-300 w-full md:w-auto">
@@ -498,7 +481,7 @@
         <div id="search-tab-content" class="hidden">
             <div class="bg-white rounded-2xl p-6 shadow-sm mb-6 border-l-4 border-purple-600">
                 <h2 class="text-xl font-bold text-gray-800 mb-1">ค้นหาและพิมพ์รายงานบันทึกมิเตอร์</h2>
-                <p class="text-xs text-gray-500">พิมพ์เอกสารทางการและดาวน์โหลดไฟล์รายงาน PDF/Google Doc จากประวัติของเซิร์ฟเวอร์</p>
+                <p class="text-xs text-gray-500">จัดการไฟล์รายงาน PDF หรือแก้ไขใบสับเปลี่ยนแบบออนไลน์ (Google Doc) ผ่านการเชื่อมต่อกับเทมเพลตและชีตโดยตรง</p>
             </div>
 
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
@@ -523,7 +506,7 @@
                                 <th class="px-4 py-3">ชื่อผู้ใช้ไฟฟ้า</th>
                                 <th class="px-4 py-3">ถอนคืน / ติดตั้ง</th>
                                 <th class="px-4 py-3">ผลการตรวจ</th>
-                                <th class="px-4 py-3 text-center font-bold">จัดการเอกสาร (ใช้ Template: 1RnSoT...)</th>
+                                <th class="px-4 py-3 text-center font-bold">จัดการเอกสารรายงาน (เชื่อมต่อ Template: 1RnSoT...)</th>
                             </tr>
                         </thead>
                         <tbody id="records-table-body" class="divide-y divide-gray-100 text-gray-700">
@@ -562,142 +545,8 @@
         <span id="toast-message" class="text-sm font-medium text-gray-700"></span>
     </div>
 
-    <!-- Printable Official Docx Replica Container (HIDDEN IN SCREEN, SHOWN ONLY ON PRINT) -->
-    <div id="print-document" class="hidden p-10 bg-white text-black mx-auto" style="width: 210mm; min-height: 297mm; font-family: 'Sarabun', 'Prompt', sans-serif; font-size: 14px; line-height: 1.6;">
-        <!-- PEA Logo Header -->
-        <div class="flex flex-col items-center mb-6 text-center">
-            <!-- SVG PEA Emblem -->
-            <svg width="80" height="80" viewBox="0 0 100 100" class="mb-2">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="black" stroke-width="2"/>
-                <circle cx="50" cy="50" r="41" fill="none" stroke="black" stroke-width="1" stroke-dasharray="2,2"/>
-                <path d="M50 15 C30 15, 15 30, 15 50 C15 70, 30 85, 50 85 C70 85, 85 70, 85 50 C85 30, 70 15, 50 15 Z" fill="none" stroke="black" stroke-width="1.5"/>
-                <path d="M30 50 L40 35 L50 45 L70 25" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <text x="50" y="78" font-size="10" font-weight="bold" text-anchor="middle" font-family="Sarabun">การไฟฟ้าส่วนภูมิภาค</text>
-            </svg>
-            <h1 class="text-xl font-bold">บันทึกข้อความ</h1>
-            <p class="text-sm font-bold">การไฟฟ้าส่วนภูมิภาค (PEA)</p>
-        </div>
-
-        <!-- Meta Data Table info -->
-        <div class="grid grid-cols-2 gap-y-2 border-b border-black pb-4 mb-4 text-sm">
-            <div><strong>จาก:</strong> <span class="border-b border-dotted border-black px-1">พชง.กฟส.บัวเชด</span></div>
-            <div><strong>ถึง:</strong> <span class="border-b border-dotted border-black px-1">ผจก.กฟส.บัวเชด</span></div>
-            <div><strong>เลขที่:</strong> <span id="print_doc_no" class="border-b border-dotted border-black px-1">........................................</span></div>
-            <div><strong>วันที่:</strong> <span id="print_doc_date" class="border-b border-dotted border-black px-1">........................................</span></div>
-            <div class="col-span-2"><strong>เรื่อง:</strong> <span class="border-b border-dotted border-black px-1 font-bold text-base">รายงานการสับเปลี่ยนมิเตอร์ผู้ใช้ไฟฟ้า</span></div>
-        </div>
-
-        <!-- Section 1 Details -->
-        <div class="space-y-3 text-sm">
-            <p><strong>เรียน:</strong> ผจก.กฟส.บัวเชด</p>
-            <p class="pl-8 leading-relaxed">
-                ด้วย พชง.กฟส.บัวเชด ได้ดำเนินการตรวจสอบและจัดการสับเปลี่ยนมิเตอร์ของผู้ใช้ไฟฟ้า หมายเลข <span id="print_meter_no" class="font-bold border-b border-dotted border-black px-2"></span> 
-                ชนิด <span id="print_meter_type" class="font-bold border-b border-dotted border-black px-2"></span>
-                ขนาด <span id="print_meter_size" class="font-bold border-b border-dotted border-black px-2"></span> 
-                ชื่อผู้ใช้ไฟ <span id="print_customer_name" class="font-bold border-b border-dotted border-black px-2"></span> 
-                หมายเลข CA <span id="print_ca_no" class="font-bold border-b border-dotted border-black px-2"></span>
-            </p>
-            <p class="pl-8 leading-relaxed">
-                สถานที่ติดตั้ง/ที่อยู่ <span id="print_customer_address" class="border-b border-dotted border-black px-2"></span>
-                เบอร์โทรศัพท์ติดต่อ <span id="print_customer_phone" class="border-b border-dotted border-black px-2"></span>
-            </p>
-            <p class="pl-8 leading-relaxed">
-                <strong>ผลการตรวจสอบสภาพทั่วไป:</strong> <span id="print_check_details" class="border-b border-dotted border-black px-2"></span>
-                หน่วยขณะถอนคืนอยู่ที่ <span id="print_check_unit" class="font-bold border-b border-dotted border-black px-2"></span> kWh
-                สถานะการตรวจสภาพพบว่า <span id="print_status_cause" class="font-bold border-b border-dotted border-black px-2"></span>
-            </p>
-            
-            <p class="pl-8 leading-relaxed" id="print_charge_section" style="display: none;">
-                <strong>กรณีชำรุดแบบเรียกเก็บเงิน:</strong> ค่าเสียหายของมิเตอร์คิดเป็นจำนวนเงิน <span id="print_charge_num" class="font-bold border-b border-dotted border-black px-2"></span> บาท 
-                (ตัวหนังสือ: <span id="print_charge_thai" class="font-bold border-b border-dotted border-black px-2"></span>)
-            </p>
-
-            <div class="pt-4 flex justify-end">
-                <div class="text-center w-64 space-y-4">
-                    <p>จึงเรียนมาเพื่อโปรดพิจารณาและอนุมัติ</p>
-                    <div class="pt-6">
-                        <p>ลงชื่อ..........................................................</p>
-                        <p class="mt-1">( <span id="print_inspector_name" class="px-2"></span> )</p>
-                        <p class="text-xs text-gray-500 mt-1">ผู้รายงาน / พชง.กฟส.บัวเชด</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 2 Approval (กฟภ.) -->
-        <div class="mt-6 pt-6 border-t border-dashed border-gray-400 text-xs space-y-3">
-            <p class="font-bold">เรียน ผจก.กฟส.บัวเชด,</p>
-            <p class="pl-4 leading-relaxed">
-                ได้ตรวจสอบพิจารณาแล้วเห็นควรดำเนินการสับเปลี่ยนมิเตอร์ใหม่ทดแทนเครื่องที่ชำรุด โดยให้ผู้เกี่ยวข้องดำเนินการตามระเบียบ กฟภ. ดังต่อไปนี้:
-            </p>
-            <div class="pl-8 space-y-1">
-                <p>[ <i class="fas fa-check text-[10px]"></i> ] ดำเนินการสับเปลี่ยนติดตั้งมิเตอร์ทดแทน ขนาด <span id="print_action_size" class="font-bold border-b border-dotted border-black px-1"></span></p>
-                <p>[ <span id="print_check_avg" class="inline-block min-w-[12px] text-center font-bold"></span> ] ดำเนินการส่งแผนก พบช. เพื่อประเมินเฉลี่ยปรับปรุงหน่วยกระแสไฟฟ้าตามระเบียบ</p>
-                <p>[ <i class="fas fa-check text-[10px]"></i> ] ตรวจสอบตราตะกั่วและการซีลฝาครอบขั้วมิเตอร์เรียบร้อย</p>
-            </div>
-            <div class="flex justify-between items-start pt-4 px-4 gap-4">
-                <div class="flex-1">
-                    <p>จึงเรียนเสนอเพื่อโปรดพิจารณาอนุมัติ</p>
-                    <p class="mt-8">ลงชื่อ........................................................................</p>
-                    <p class="pl-6 text-[10px] text-gray-500">พชง.กฟส.บัวเชด</p>
-                    <p class="mt-2">วันที่............./............................/.....................</p>
-                </div>
-                <div class="border border-black p-3 rounded-lg w-80 text-left">
-                    <p class="font-bold mb-1">คำสั่งอนุมัติ / ผจก.กฟส.บัวเชด</p>
-                    <p class="mb-6">[ <i class="fas fa-check text-[10px]"></i> ] อนุมัติให้ดำเนินการตามเสนอ</p>
-                    <p>ลงชื่อ.....................................................................</p>
-                    <p class="pl-6 mt-1">(.....................................................................)</p>
-                    <p class="pl-6 text-[10px] text-gray-500">ผจก.กฟส.บัวเชด</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Section 3 Meter Swap Details -->
-        <div class="mt-6 pt-4 border-t-2 border-black grid grid-cols-2 gap-4 text-xs">
-            <div class="border border-gray-300 p-3 rounded-xl bg-slate-50">
-                <p class="font-bold text-sm border-b border-gray-300 pb-1 mb-2 text-red-700"><i class="fas fa-arrow-down mr-1"></i> ข้อมูลมิเตอร์ถอนคืน</p>
-                <p class="mb-1"><strong>PEA มิเตอร์ถอนคืน:</strong> <span id="print_uninstall_no" class="font-bold"></span></p>
-                <p class="mb-1"><strong>ขนาดมิเตอร์:</strong> <span id="print_uninstall_size" class="font-bold"></span></p>
-                <p><strong>เลขอ่านได้ (หน่วยสุดท้าย):</strong> <span id="print_uninstall_unit" class="font-bold"></span> kWh</p>
-            </div>
-            <div class="border border-gray-300 p-3 rounded-xl bg-slate-50">
-                <p class="font-bold text-sm border-b border-gray-300 pb-1 mb-2 text-green-700"><i class="fas fa-arrow-up mr-1"></i> ข้อมูลมิเตอร์ติดตั้งคืน</p>
-                <p class="mb-1"><strong>PEA มิเตอร์ติดตั้งแทน:</strong> <span id="print_install_no" class="font-bold"></span></p>
-                <p class="mb-1"><strong>ขนาดมิเตอร์:</strong> <span id="print_install_size" class="font-bold"></span></p>
-                <p><strong>เลขอ่านได้เริ่มต้น:</strong> <span id="print_install_unit" class="font-bold"></span> kWh</p>
-            </div>
-        </div>
-
-        <!-- Section 4 Embedded Photos for Reference inside PDF -->
-        <div class="mt-6 pt-4 border-t border-gray-200">
-            <p class="text-xs font-bold text-gray-500 mb-2"><i class="fas fa-image mr-1"></i> รูปภาพประกอบใบสับเปลี่ยนมิเตอร์</p>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="border border-gray-200 rounded-lg p-2 text-center bg-gray-50">
-                    <p class="text-[10px] text-gray-500 mb-1">รูปที่ 1: หน้าปัดตัวเลขหน่วย (มิเตอร์ถอนคืน)</p>
-                    <div class="h-32 flex items-center justify-center overflow-hidden bg-white border border-gray-100 rounded">
-                        <img id="print_img_1" class="h-full object-contain" src="" alt="ไม่มีภาพประกอบ">
-                    </div>
-                </div>
-                <div class="border border-gray-200 rounded-lg p-2 text-center bg-gray-50">
-                    <p class="text-[10px] text-gray-500 mb-1">รูปที่ 2: สภาพมิเตอร์และตู้ติดตั้ง (มิเตอร์ติดตั้งคืน)</p>
-                    <div class="h-32 flex items-center justify-center overflow-hidden bg-white border border-gray-100 rounded">
-                        <img id="print_img_2" class="h-full object-contain" src="" alt="ไม่มีภาพประกอบ">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Back Button for Screen Viewer (Hides on PDF Printing) -->
-        <div class="mt-8 flex justify-center no-print">
-            <button onclick="closePrintPreview()" class="bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 px-6 rounded-xl shadow transition flex items-center space-x-2">
-                <i class="fas fa-times-circle"></i>
-                <span>ปิดหน้าตัวอย่างการพิมพ์</span>
-            </button>
-        </div>
-    </div>
-
     <!-- Footer -->
-    <footer class="mt-12 text-center text-xs text-gray-400 no-print">
+    <footer class="mt-12 text-center text-xs text-gray-400">
         <p>© 2026 การไฟฟ้าส่วนภูมิภาค (PEA). สงวนลิขสิทธิ์</p>
         <p class="mt-1">พัฒนาเพื่อสนับสนุนภารกิจตรวจสอบและทดสอบมิเตอร์ผู้ใช้ไฟฟ้า</p>
     </footer>
@@ -705,7 +554,7 @@
     <!-- JavaScript System -->
     <script>
         // สำคัญ: เปลี่ยน URL นี้เป็น URL Web App หลังจากการ deploy Google Apps Script ของคุณแล้ว
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwNJ2Zv4KSS_2O8ndmHOuoxaDA0fvHHtIRT6yEybQ79CToTuNEPvvNMGJgJ4Lrj4DoX/exec"; 
+        const WEB_APP_URL = ""; 
 
         // State เก็บข้อมูลรูปภาพ Base64
         const imageData = {
@@ -714,11 +563,12 @@
         };
 
         // ข้อมูลตัวอย่างเริ่มต้น (กรณีที่ยังไม่ได้กำหนด WEB_APP_URL)
+        // โดยใช้เทมเพลต ID จริงของผู้ใช้มาแสดงตัวอย่างการทำงานที่ใช้งานได้เลย
         let cachedRecords = [
             {
                 timestamp: new Date().toISOString(),
                 ca_no: "020012345678",
-                customer_name: "นายสมชาย ใจดี",
+                customer_name: "นายสมชาย ใจดี (ตัวอย่างในเว็บพรีวิว)",
                 meter_no: "PEA-559281",
                 meter_type: "ชนิดจานหมุน",
                 meter_size: "15(45) A 1P 2W",
@@ -738,8 +588,8 @@
                 install_unit: "0",
                 photo_1_url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=400",
                 photo_2_url: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=400",
-                doc_url: "#",
-                pdf_url: "#"
+                doc_url: "https://docs.google.com/document/d/1RnSoT5fumAYXzJayMiwnn1RuOloOxy4w/edit?usp=sharing",
+                pdf_url: "https://docs.google.com/document/d/1RnSoT5fumAYXzJayMiwnn1RuOloOxy4w/export?format=pdf"
             }
         ]; 
 
@@ -1008,7 +858,7 @@
 
         // ดึงประวัติข้อมูลบันทึกจากเซิร์ฟเวอร์ชีต
         async function loadSheetRecords() {
-            if (WEB_APP_URL === "") {
+            if (WEB_APP_URL === "https://script.google.com/macros/s/AKfycbzwbKlVwx_dgccJIlth22owQnXrHKf0Dy6S3JMN3a5bKuK_ECUE4BQp7FFyLzo56q7_/exec") {
                 showToast("ยังไม่ได้ระบุ WEB_APP_URL ในระบบ หน้าเว็บบริหารงานด้วยประวัติตัวอย่าง", "fas fa-info-circle", "text-blue-500");
                 renderRecords(cachedRecords);
                 return;
@@ -1055,21 +905,21 @@
 
                 // ดึง URL เอกสารมาสร้างปุ่ม (หากไม่มี จะซ่อนไว้ หรือแสดงสีเทา)
                 const docButton = row.doc_url && row.doc_url !== "#" ? 
-                    `<a href="${row.doc_url}" target="_blank" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-2.5 py-1.5 rounded-lg text-xs flex items-center space-x-1 transition shadow-sm border border-blue-200">
+                    `<a href="${row.doc_url}" target="_blank" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold px-3 py-2 rounded-lg text-xs flex items-center space-x-1.5 transition shadow-sm border border-blue-200">
                         <i class="fas fa-file-word text-sm text-blue-500"></i>
                         <span>เปิด Google Doc (แก้ไข)</span>
                     </a>` : 
-                    `<button disabled class="bg-gray-100 text-gray-400 font-bold px-2.5 py-1.5 rounded-lg text-xs flex items-center space-x-1 cursor-not-allowed border border-gray-200">
+                    `<button disabled class="bg-gray-100 text-gray-400 font-bold px-3 py-2 rounded-lg text-xs flex items-center space-x-1.5 cursor-not-allowed border border-gray-200">
                         <i class="fas fa-file-word text-sm"></i>
                         <span>Doc ยังไม่ถูกสร้าง</span>
                     </button>`;
 
                 const pdfButton = row.pdf_url && row.pdf_url !== "#" ? 
-                    `<a href="${row.pdf_url}" target="_blank" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-2.5 py-1.5 rounded-lg text-xs flex items-center space-x-1 transition shadow-sm border border-red-200">
+                    `<a href="${row.pdf_url}" target="_blank" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-3 py-2 rounded-lg text-xs flex items-center space-x-1.5 transition shadow-sm border border-red-200">
                         <i class="fas fa-file-pdf text-sm text-red-500"></i>
                         <span>ดาวน์โหลด PDF</span>
                     </a>` : 
-                    `<button disabled class="bg-gray-100 text-gray-400 font-bold px-2.5 py-1.5 rounded-lg text-xs flex items-center space-x-1 cursor-not-allowed border border-gray-200">
+                    `<button disabled class="bg-gray-100 text-gray-400 font-bold px-3 py-2 rounded-lg text-xs flex items-center space-x-1.5 cursor-not-allowed border border-gray-200">
                         <i class="fas fa-file-pdf text-sm"></i>
                         <span>PDF ยังไม่พร้อม</span>
                     </button>`;
@@ -1091,10 +941,6 @@
                         <div class="flex flex-col sm:flex-row items-stretch justify-center gap-2">
                             ${docButton}
                             ${pdfButton}
-                            <button onclick="previewAndPrintReport(${index})" class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-center space-x-1 transition border border-purple-200">
-                                <i class="fas fa-print"></i>
-                                <span>พิมพ์ด่วนหน้าเว็บ</span>
-                            </button>
                         </div>
                     </td>
                 `;
@@ -1113,69 +959,6 @@
                 row.install_meter_no.toLowerCase().includes(query)
             );
             renderRecords(filtered);
-        }
-
-        // นำข้อมูลเข้าระบบพรีวิวเพื่อเตรียมพิมพ์ในรูปแบบเอกสารราชการ PEA A4
-        function previewAndPrintReport(recordIndex) {
-            const data = cachedRecords[recordIndex];
-            
-            const eventDate = new Date(data.timestamp);
-            document.getElementById('print_doc_date').innerText = isNaN(eventDate) ? data.timestamp : eventDate.toLocaleDateString('th-TH', {day:'numeric', month:'long', year:'numeric'});
-            document.getElementById('print_meter_no').innerText = data.meter_no || "-";
-            document.getElementById('print_meter_type').innerText = data.meter_type || "-";
-            document.getElementById('print_meter_size').innerText = data.meter_size;
-            document.getElementById('print_customer_name').innerText = data.customer_name;
-            document.getElementById('print_ca_no').innerText = data.ca_no;
-            document.getElementById('print_customer_address').innerText = data.customer_address;
-            document.getElementById('print_customer_phone').innerText = data.customer_phone || "-";
-            document.getElementById('print_check_details').innerText = data.check_other_details || "ตรวจสอบสภาพและสับเปลี่ยนมิเตอร์ตามวงรอบแผนการบำรุงรักษา";
-            document.getElementById('print_check_unit').innerText = data.check_unit;
-            document.getElementById('print_inspector_name').innerText = data.inspector_name;
-            
-            if (data.meter_status === 'ชำรุด') {
-                document.getElementById('print_status_cause').innerText = "ชำรุดเสียหายด้วยสาเหตุ: " + data.final_cause;
-                
-                if (data.charge_amount_num && parseFloat(data.charge_amount_num) > 0) {
-                    document.getElementById('print_charge_section').style.display = "block";
-                    document.getElementById('print_charge_num').innerText = parseFloat(data.charge_amount_num).toFixed(2);
-                    document.getElementById('print_charge_thai').innerText = data.charge_amount_thai;
-                } else {
-                    document.getElementById('print_charge_section').style.display = "none";
-                }
-            } else {
-                document.getElementById('print_status_cause').innerText = "ปกติทุกประการ";
-                document.getElementById('print_charge_section').style.display = "none";
-            }
-
-            document.getElementById('print_check_avg').innerHTML = data.request_average_unit === 'ใช่' 
-                ? '<i class="fas fa-check text-[10px]"></i>' 
-                : '&nbsp;&nbsp;';
-
-            document.getElementById('print_action_size').innerText = data.meter_size;
-            document.getElementById('print_uninstall_no').innerText = data.uninstall_meter_no;
-            document.getElementById('print_uninstall_size').innerText = data.meter_size;
-            document.getElementById('print_uninstall_unit').innerText = data.uninstall_unit;
-
-            document.getElementById('print_install_no').innerText = data.install_meter_no;
-            document.getElementById('print_install_size').innerText = data.meter_size;
-            document.getElementById('print_install_unit').innerText = data.install_unit;
-
-            const img1 = document.getElementById('print_img_1');
-            const img2 = document.getElementById('print_img_2');
-            
-            img1.src = data.photo_1_url || (data.photo_1 && data.photo_1.previewUrl) || "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=400";
-            img2.src = data.photo_2_url || (data.photo_2 && data.photo_2.previewUrl) || "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&q=80&w=400";
-
-            document.getElementById('print-document').classList.remove('hidden');
-            window.scrollTo(0, 0);
-
-            setTimeout(() => {
-                window.print();
-            }, 600);
-        }
-
-        function closePrintPreview() {
-            document.getElementById('print-document').classList.add('hidden');
         }
 
         // นำข้อมูลจากแบบฟอร์มส่งบันทึกไปยังเซิร์ฟเวอร์
@@ -1247,11 +1030,11 @@
                             install_unit: dataObj.install_unit,
                             photo_1: dataObj.photo_1,
                             photo_2: dataObj.photo_2,
-                            doc_url: "#",
-                            pdf_url: "#"
+                            doc_url: "https://docs.google.com/document/d/1RnSoT5fumAYXzJayMiwnn1RuOloOxy4w/edit?usp=sharing",
+                            pdf_url: "https://docs.google.com/document/d/1RnSoT5fumAYXzJayMiwnn1RuOloOxy4w/export?format=pdf"
                         });
                         
-                        showToast("บันทึกข้อมูลจำลองลงตารางเรียบร้อยแล้ว! (คุณสามารถตรวจสอบและทดสอบพิมพ์ได้จากแท็บประวัติ)", "fas fa-check-circle", "text-green-500");
+                        showToast("บันทึกข้อมูลจำลองลงตารางเรียบร้อยแล้ว! (คุณสามารถตรวจสอบและกดพิมพ์ได้จากแท็บประวัติ)", "fas fa-check-circle", "text-green-500");
                         
                         resetFormAndState();
                         switchTab('search-tab');
@@ -1279,15 +1062,15 @@
                     setTimeout(() => {
                         overlay.classList.add('hidden');
                         
-                        // สร้างหน้าต่าง Modal แสดงลิงก์เอกสารทันทีหลังจากกดบันทึกสำเร็จ
+                        // แสดง Toast แจ้งเตือนความสำเร็จ
                         showToast(`จัดเก็บข้อมูลลง Sheet และสร้างเอกสาร Google Doc สำเร็จ!`, "fas fa-check-circle", "text-green-400");
                         
                         resetFormAndState();
                         switchTab('search-tab');
                         
-                        // เปิดหน้าต่างใหม่แสดงลิงก์เอกสารเพื่อให้ผู้ใช้งานคลิกได้ทันที
+                        // เปิดรายงานไฟล์ Google Doc ให้พนักงานพิมพ์หรือตรวจสอบความถูกต้องได้ทันที
                         if (result.doc_url) {
-                            const openDoc = confirm("ระบบสร้างไฟล์รายงานสำเร็จแล้วต้องการเปิดดูไฟล์ Google Doc เลยหรือไม่?");
+                            const openDoc = confirm("ระบบสร้างไฟล์รายงานสำเร็จแล้ว ต้องการเปิดดูไฟล์ Google Doc ที่พร้อมพิมพ์เลยหรือไม่?");
                             if (openDoc) {
                                 window.open(result.doc_url, "_blank");
                             }
