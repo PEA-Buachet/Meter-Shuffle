@@ -4,22 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบบันทึกการสับเปลี่ยนมิเตอร์ PEA</title>
-    
-    <!-- 
-        หมายเหตุสำหรับการนำไปใช้งานจริง (Production): 
-        ข้อความเตือน "cdn.tailwindcss.com should not be used in production" เกิดจากการใช้ Tailwind CDN บนเบราว์เซอร์ 
-        ซึ่งมีความจำเป็นสำหรับโปรเจกต์ที่เป็นไฟล์ HTML ไฟล์เดียว (Single File) เพื่อให้คลาสแบบไดนามิกทำงานได้
-        * หากคุณนำโปรเจกต์นี้ไปใช้งานจริงบน Server แนะนำให้ติดตั้งด้วย PostCSS หรือ Tailwind CLI แล้วเปลี่ยนไปอ้างอิงไฟล์ .css ที่ Build แล้วแทน
-    -->
-    <script>
-        // สคริปต์สำหรับซ่อนข้อความแจ้งเตือน Tailwind CDN ใน Console ชั่วคราว
-        const originalWarn = console.warn;
-        console.warn = function(...args) {
-            if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
-            originalWarn.apply(console, args);
-        };
-    </script>
-    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -712,7 +696,8 @@
     <!-- JavaScript System -->
     <script>
         // สำคัญ: เปลี่ยน URL นี้เป็น URL Web App หลังจากการ deploy Google Apps Script ของคุณแล้ว
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6jj3hcGVZEQmQXoF3yn8bZeYNdirenFo08VL-G9qDDpe7a6pVVkgmqiDdqWLAImqN/exec"; 
+        // เช่น https://script.google.com/macros/s/AKfycb.../exec
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwKH5LAdF1E3M9ju_GMHweVmWc2H-5WMB5CTrktDnDwdLMrxcJE-pxU6SjOOhqpL_0Y/exec"; 
 
         // State เก็บข้อมูลรูปภาพ Base64
         const imageData = {
@@ -978,7 +963,6 @@
             reader.readAsDataURL(file);
         }
 
-        // ลบรูปภาพพรีวิวออก
         function removeImage(inputId, previewId, placeholderId, removeBtnId) {
             document.getElementById(inputId).value = "";
             document.getElementById(previewId + '_container').classList.add('hidden');
@@ -992,7 +976,6 @@
             }
         }
 
-        // แสดงแจ้งเตือน Toast
         function showToast(message, iconClass = "fas fa-check-circle", iconColorClass = "text-green-400") {
             const toast = document.getElementById('toast');
             const msgSpan = document.getElementById('toast-message');
@@ -1060,6 +1043,13 @@
                 const dateObj = new Date(row.timestamp);
                 const shortDate = isNaN(dateObj) ? row.timestamp : dateObj.toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'2-digit'});
 
+                // เช็คว่ามีลิงก์ PDF จาก Server หรือไม่
+                const pdfButton = row.pdf_report_url 
+                    ? `<a href="${row.pdf_report_url}" target="_blank" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center space-x-1 transition mb-1" title="ดาวน์โหลดเอกสาร PDF จากระบบ">
+                        <i class="fas fa-file-pdf"></i><span>โหลด PDF</span>
+                       </a>`
+                    : '';
+
                 tr.innerHTML = `
                     <td class="px-4 py-3.5 font-medium text-gray-500">${shortDate}</td>
                     <td class="px-4 py-3.5 font-bold text-gray-900">${row.ca_no}</td>
@@ -1073,11 +1063,13 @@
                             ${row.meter_status === 'ปกติ' ? 'ปกติ' : 'ชำรุด (' + row.final_cause + ')'}
                         </span>
                     </td>
-                    <td class="px-4 py-3.5 text-center">
-                        <button onclick="previewAndPrintReport(${index})" class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center space-x-1 mx-auto transition">
-                            <i class="fas fa-print"></i>
-                            <span>พิมพ์รายงาน</span>
-                        </button>
+                    <td class="px-4 py-3.5">
+                        <div class="flex flex-col items-center justify-center space-y-1">
+                            ${pdfButton}
+                            <button onclick="previewAndPrintReport(${index})" class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center space-x-1 transition w-full">
+                                <i class="fas fa-print"></i><span>พิมพ์ใบเครื่อง</span>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tableBody.appendChild(tr);
@@ -1086,80 +1078,21 @@
 
         // ค้นหารายการจากตารางประวัติ
         function filterRecords() {
-            const query = document.getElementById('search-input').value.toLowerCase();
+            const query = (document.getElementById('search-input').value || "").toLowerCase();
             const filtered = cachedRecords.filter(row => 
-                row.customer_name.toLowerCase().includes(query) ||
-                row.ca_no.toLowerCase().includes(query) ||
-                (row.meter_no && row.meter_no.toLowerCase().includes(query)) ||
-                row.uninstall_meter_no.toLowerCase().includes(query) ||
-                row.install_meter_no.toLowerCase().includes(query)
+                (row.customer_name || "").toLowerCase().includes(query) ||
+                (row.ca_no || "").toLowerCase().includes(query) ||
+                (row.meter_no || "").toLowerCase().includes(query) ||
+                (row.uninstall_meter_no || "").toLowerCase().includes(query) ||
+                (row.install_meter_no || "").toLowerCase().includes(query)
             );
             renderRecords(filtered);
         }
 
-        // ส่งขอการสร้างรายงานจาก Google Docs Template หลังบ้าน
-        async function previewAndPrintReport(recordIndex) {
+        // นำข้อมูลเข้าระบบพรีวิวเพื่อเตรียมพิมพ์ในรูปแบบเอกสารราชการ PEA A4
+        function previewAndPrintReport(recordIndex) {
             const data = cachedRecords[recordIndex];
             
-            // ตรวจสอบว่าหากยังไม่ได้ระบุ URL หรือ URL มีค่าเริ่มต้นให้ข้ามไปพิมพ์แบบออฟไลน์
-            if (WEB_APP_URL === "" || WEB_APP_URL.includes("YOUR_WEB_APP_URL")) {
-                showToast("ไม่ได้กำหนดค่าเชื่อมระบบคลาวด์ เปิดระบบพิมพ์รายงานออฟไลน์สำรอง", "fas fa-info-circle", "text-blue-500");
-                previewLocalReport(data);
-                return;
-            }
-
-            const overlay = document.getElementById('loadingOverlay');
-            const loadingBar = document.getElementById('loading-bar');
-            const loadingText = document.getElementById('loading-text');
-
-            overlay.classList.remove('hidden');
-            loadingBar.style.width = '35%';
-            loadingText.innerText = "กำลังเชื่อมต่อไปยัง Google Docs และคัดลอกไฟล์ต้นแบบ...";
-
-            try {
-                // เตรียมข้อมูลที่จะส่งไปให้ทาง Google Apps Script จัดการประมวลผล
-                const payload = {
-                    action: "generateReport",
-                    data: data
-                };
-
-                // ส่งคำขอแบบ POST หลีกเลี่ยง CORS preflight (โดยใช้ text/plain)
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP Error Status: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.status === "success" && result.fileUrl) {
-                    loadingBar.style.width = '100%';
-                    loadingText.innerText = "การเขียนรายงานเสร็จสิ้น! กำลังเปิดหน้าใหม่...";
-                    setTimeout(() => {
-                        overlay.classList.add('hidden');
-                        window.open(result.fileUrl, '_blank');
-                    }, 1000);
-                } else {
-                    throw new Error(result.message || "เซิร์ฟเวอร์ส่งกลับสถานะล้มเหลว");
-                }
-            } catch (error) {
-                console.error("Connection/Integration Error to Google Docs:", error);
-                overlay.classList.add('hidden');
-                
-                // แจ้งเตือนข้อผิดพลาดรายละเอียด และเปลี่ยนไปใช้แบบจำลองพิมพ์ทันที (Failover fallback)
-                showToast("ขัดข้อง: " + error.message + " กำลังเปิดแบบฟอร์มพิมพ์ภายในตัวหน้าเว็บแทน", "fas fa-exclamation-triangle", "text-amber-500");
-                setTimeout(() => {
-                    previewLocalReport(data);
-                }, 1800);
-            }
-        }
-
-        // ระบบสำรอง: จัดการดึงประวัติ และพิมพ์จำลองเอกสารราชการ PEA A4 บนหน้าเว็บทันที
-        function previewLocalReport(data) {
             const eventDate = new Date(data.timestamp);
             document.getElementById('print_doc_date').innerText = isNaN(eventDate) ? data.timestamp : eventDate.toLocaleDateString('th-TH', {day:'numeric', month:'long', year:'numeric'});
             document.getElementById('print_meter_no').innerText = data.meter_no || "-";
@@ -1215,7 +1148,6 @@
             }, 600);
         }
 
-        // ปิดหน้าตัวอย่างการพิมพ์
         function closePrintPreview() {
             document.getElementById('print-document').classList.add('hidden');
         }
@@ -1258,7 +1190,7 @@
             loadingText.innerText = "กำลังบีบอัดข้อมูลและเข้ารหัสรูปภาพเตรียมส่งเซิร์ฟเวอร์...";
 
             // ตรวจสอบว่ามี API URL หรือไม่ ถ้าไม่มีให้จำลองข้อมูลแบบ Local
-            if (WEB_APP_URL === "https://script.google.com/macros/s/AKfycbxDUrnGpvEH1_rkMKeU_K9elzivnKlIzzccr-VbLGOjQC7lXS8415ewQr720vOrAfFz/exec" || WEB_APP_URL.includes("YOUR_WEB_APP_URL")) {
+            if (WEB_APP_URL === "") {
                 setTimeout(() => {
                     loadingBar.style.width = '100%';
                     loadingText.innerText = "บันทึกข้อมูลแบบจำลองเสร็จสิ้น!";
@@ -1301,14 +1233,11 @@
             }
 
             try {
-                // ส่งข้อมูลคำขอแบบ POST (ระบุ Action ส่งแบบฟอร์มหลัก)
-                dataObj.action = "submitForm";
-
                 // ยิง POST ข้อมูล JSON ไปยัง Google Apps Script Web App
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'text/plain;charset=utf-8' // ตั้งค่าเพื่อข้ามข้อจำกัด CORS Pre-flight
+                        'Content-Type': 'text/plain;charset=utf-8' // ตั้งค่าเพื่อให้ข้ามข้อจำกัด CORS Pre-flight ในบางกรณีของ Apps Script
                     },
                     body: JSON.stringify(dataObj)
                 });
@@ -1321,10 +1250,11 @@
                     
                     setTimeout(() => {
                         overlay.classList.add('hidden');
-                        showToast(`จัดเก็บข้อมูลลง Sheet และแยกเข้าโฟลเดอร์ Drive ประจำเดือน (${result.folder}) เรียบร้อยแล้ว!`, "fas fa-check-circle", "text-green-400");
+                        showToast(`จัดเก็บข้อมูลลง Sheet และสร้างเอกสารลงโฟลเดอร์ (${result.folder}) เรียบร้อย!`, "fas fa-check-circle", "text-green-400");
                         
                         resetFormAndState();
                         switchTab('search-tab');
+                        loadSheetRecords(); // รีเฟรชตารางดึงข้อมูลจาก Sheet ทันทีเพื่อให้เห็น PDF
                     }, 800);
                 } else {
                     throw new Error(result.message || "มีข้อผิดพลาดบางอย่างบนเซิร์ฟเวอร์");
